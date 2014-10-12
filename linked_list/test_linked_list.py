@@ -1,7 +1,7 @@
 '''
 Test suite for linked_list.py
 
-Partially adapted from:
+Usefully informed about the way unit tests look by:
 https://github.com/linsomniac/python-unittest-skeleton/
 blob/master/tests/test_skeleton.py
 
