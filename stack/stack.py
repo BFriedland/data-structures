@@ -2,11 +2,11 @@
 
 Contains a Stack class for constructing stacks out of Node objects.
 
-This stack implementation copies heavily from test_linked_stack
+This stack implementation copies heavily from test_linked_list
 in my data-structures repository.
 
 Partly adapted from:
-http://en.literateprograms.org/Singly_linked_stack_%28Python%29
+http://en.literateprograms.org/Singly_linked_list_%28Python%29
 '''
 
 
