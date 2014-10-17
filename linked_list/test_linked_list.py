@@ -65,7 +65,6 @@ class test_LinkedList(unittest.TestCase):
 
         self.setUp()
 
-        # This will remove the test_insert() Node and return the value it had.
         pop_test_string = 'pop() test data'
         self.test_list.insert(pop_test_string)
         pop_test_return_data = self.test_list.pop()
