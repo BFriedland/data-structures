@@ -58,8 +58,8 @@ class test_LinkedList(unittest.TestCase):
         insert_test_string = 'insert() test data'
         self.test_list.insert(insert_test_string)
         self.assertEqual(self.test_list.head.data, insert_test_string)
-        self.assertEqual(self.test_list.created_nodes, 10)
-        self.assertEqual(self.test_list.deleted_nodes, 0)
+        self.assertEqual(self.test_list.number_of_created_nodes, 10)
+        self.assertEqual(self.test_list.number_of_deleted_nodes, 0)
 
     def test_pop(self):
 
@@ -69,8 +69,8 @@ class test_LinkedList(unittest.TestCase):
         self.test_list.insert(pop_test_string)
         pop_test_return_data = self.test_list.pop()
         self.assertEqual(pop_test_return_data, pop_test_string)
-        self.assertEqual(self.test_list.created_nodes, 10)
-        self.assertEqual(self.test_list.deleted_nodes, 1)
+        self.assertEqual(self.test_list.number_of_created_nodes, 10)
+        self.assertEqual(self.test_list.number_of_deleted_nodes, 1)
 
     def test_size(self):
 
@@ -113,8 +113,8 @@ class test_LinkedList(unittest.TestCase):
         # It will try to find the string and return None.
 
         self.assertEqual(self.test_list.search(remove_test_string), None)
-        self.assertEqual(self.test_list.created_nodes, 10)
-        self.assertEqual(self.test_list.deleted_nodes, 1)
+        self.assertEqual(self.test_list.number_of_created_nodes, 10)
+        self.assertEqual(self.test_list.number_of_deleted_nodes, 1)
 
         test_string_for_no_nodes = "This test string is for the empty list."
 

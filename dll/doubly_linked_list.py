@@ -17,6 +17,10 @@ Informed by/partly adapted from:
 http://en.literateprograms.org/Singly_linked_list_%28Python%29
 '''
 
+# I feel like renaming variables for this function to match the specifications
+# of the assignment, "Read Clean Code Chapter 2 - Meaningful Names", would
+# be counterproductive and possibly disingenuous. In the spirit of the
+# book, I've decided to leave this file's variable names intact.
 
 class Node:
 
@@ -63,6 +67,7 @@ class DoublyLinkedList:
             # The head always gets updated by insert().
             self.head.previous_node.next_node = self.head
 
+    # The specifications explicitly stated this method should be append(val).
     def append(self, val):
 
         the_node_to_append = Node()
@@ -157,10 +162,11 @@ class DoublyLinkedList:
 
         return the_value_to_return
 
+    # The specifications explicitly stated this method should be remove(val).
     def remove(self, val):
 
         # Let's make a closure for our recursion.
-        def check_the_next_node_for_this_value(the_node_we_are_examining, val):
+        def check_the_next_node_node_for_this_value(the_node_we_are_examining, val):
 
             if the_node_we_are_examining.data == val:
 
@@ -217,7 +223,7 @@ class DoublyLinkedList:
                 # Again, Node type as opposed to NoneType.
                 if isinstance(the_node_we_are_examining.previous_node, Node):
 
-                    return check_the_next_node_for_this_value(
+                    return check_the_next_node_node_for_this_value(
                         the_node_we_are_examining.previous_node, val)
 
                 else:
@@ -234,4 +240,4 @@ class DoublyLinkedList:
 
         else:
 
-            return check_the_next_node_for_this_value(self.head, val)
+            return check_the_next_node_node_for_this_value(self.head, val)

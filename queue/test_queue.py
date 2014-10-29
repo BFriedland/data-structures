@@ -62,8 +62,8 @@ class test_Queue(unittest.TestCase):
         self.assertEqual(self.test_queue.head.data, enqueue_test_string)
 
         # This provides secondary testing for queue.Queue.size() as well.
-        self.assertEqual(self.test_queue.created_nodes, 10)
-        self.assertEqual(self.test_queue.deleted_nodes, 0)
+        self.assertEqual(self.test_queue.number_of_created_nodes, 10)
+        self.assertEqual(self.test_queue.number_of_deleted_nodes, 0)
 
     def test_dequeue(self):
 
@@ -76,23 +76,23 @@ class test_Queue(unittest.TestCase):
         self.assertEqual(dequeue_test_return_data, 1)
 
         # This provides secondary testing for queue.Queue.size() as well.
-        self.assertEqual(self.test_queue.created_nodes, 10)
-        self.assertEqual(self.test_queue.deleted_nodes, 1)
+        self.assertEqual(self.test_queue.number_of_created_nodes, 10)
+        self.assertEqual(self.test_queue.number_of_deleted_nodes, 1)
 
         self.test_queue_for_one_node.dequeue()
-        self.assertEqual(self.test_queue_for_one_node.created_nodes, 1)
-        self.assertEqual(self.test_queue_for_one_node.deleted_nodes, 1)
+        self.assertEqual(self.test_queue_for_one_node.number_of_created_nodes, 1)
+        self.assertEqual(self.test_queue_for_one_node.number_of_deleted_nodes, 1)
 
         with self.assertRaises(Exception):
             self.test_queue_for_no_nodes.dequeue()
-        self.assertEqual(self.test_queue_for_no_nodes.created_nodes, 0)
-        self.assertEqual(self.test_queue_for_no_nodes.deleted_nodes, 0)
+        self.assertEqual(self.test_queue_for_no_nodes.number_of_created_nodes, 0)
+        self.assertEqual(self.test_queue_for_no_nodes.number_of_deleted_nodes, 0)
 
         # Also check for dequeueing after enqueueing:
         with self.assertRaises(Exception):
             self.test_queue_for_one_node.dequeue()
-        self.assertEqual(self.test_queue_for_one_node.created_nodes, 1)
-        self.assertEqual(self.test_queue_for_one_node.deleted_nodes, 1)
+        self.assertEqual(self.test_queue_for_one_node.number_of_created_nodes, 1)
+        self.assertEqual(self.test_queue_for_one_node.number_of_deleted_nodes, 1)
 
         # Similar to first in this method, but we put this at the end
         # to avoid setUp() and created/deleted node count conflicts.
@@ -111,12 +111,12 @@ class test_Queue(unittest.TestCase):
         self.assertEqual(self.test_queue_for_no_nodes.size(), 0)
 
         self.assertEqual(self.test_queue.size(),
-                         self.test_queue.created_nodes)
+                         self.test_queue.number_of_created_nodes)
         self.assertEqual(self.test_queue_for_no_nodes.size(),
-                         self.test_queue_for_no_nodes.created_nodes)
+                         self.test_queue_for_no_nodes.number_of_created_nodes)
 
-        self.assertEqual(self.test_queue.deleted_nodes, 0)
-        self.assertEqual(self.test_queue_for_no_nodes.deleted_nodes, 0)
+        self.assertEqual(self.test_queue.number_of_deleted_nodes, 0)
+        self.assertEqual(self.test_queue_for_no_nodes.number_of_deleted_nodes, 0)
 
 
 unittest.main()

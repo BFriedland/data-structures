@@ -93,10 +93,7 @@ class test_DoublyLinkedList(unittest.TestCase):
         self.assertEqual(self.test_list_for_no_nodes.head, None)
         self.assertEqual(self.test_list_for_no_nodes.tail, None)
 
-
-
-
-
+        # I can certainly fix a PEP-8 violation, though.
 
         pop_test_string = 'pop() test data'
         self.test_list.insert(pop_test_string)
