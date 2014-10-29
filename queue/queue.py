@@ -17,18 +17,18 @@ class Queue:
         self.head = None
         self.tail = None
 
-        self.created_nodes = 0
-        self.deleted_nodes = 0
+        self.number_of_created_nodes = 0
+        self.number_of_deleted_nodes = 0
 
         self.previously_placed_node = None
 
-    def enqueue(self, data):
+    def enqueue(self, supplied_data):
 
-        ''' Insert a new node with given data at the head of the queue. '''
+        ''' Insert a new node with supplied_data at the head of the queue. '''
 
         new_node = Node()
 
-        new_node.data = data
+        new_node.data = supplied_data
 
         new_node.next_node = self.head
         print("new_node.next_node == %r" % (self.head))
@@ -51,7 +51,7 @@ class Queue:
         new_node.previous_node = new_node
         print("new_node.previous_node == %r" % (new_node.data))
 
-        self.created_nodes += 1
+        self.number_of_created_nodes += 1
 
 
     def dequeue(self):
@@ -82,7 +82,11 @@ class Queue:
                 # (by being self.head too)
                 if (self.tail.next_node is None) and (self.tail != self.head):
 
-                    # self.tail.previous_node = None # should be self.tail = None, since the conditional checks if the node we moved one dequeue() ago is None (thus, this dequeue() we nust be removing the current node, self.tail).
+                    # self.tail.previous_node = None # should be
+                    # self.tail = None, since the conditional checks
+                    # if the node we moved one dequeue() ago is None
+                    # (thus, this dequeue() we nust be removing
+                    # the current node, self.tail).
                     self.tail = self.tail.previous_node
                     print("self.tail. == %r" % (self.tail))
 
@@ -109,7 +113,7 @@ class Queue:
 
                 if value_to_return is not None:
 
-                    self.deleted_nodes += 1
+                    self.number_of_deleted_nodes += 1
 
                 return value_to_return
 
@@ -117,10 +121,9 @@ class Queue:
 
                 raise Exception
 
-
     def size(self):
 
-        size_of_the_queue = self.created_nodes - self.deleted_nodes
+        size_of_the_queue = self.number_of_created_nodes - self.number_of_deleted_nodes
 
         return size_of_the_queue
 
