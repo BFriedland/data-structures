@@ -14,8 +14,8 @@ class LinkedList:
         self.head = None
         self.tail = None
 
-        self.created_nodes = 0
-        self.deleted_nodes = 0
+        self.number_of_created_nodes = 0
+        self.number_of_deleted_nodes = 0
 
     def insert(self, val):
 
@@ -36,7 +36,7 @@ class LinkedList:
 
         self.head = new_node
 
-        self.created_nodes += 1
+        self.number_of_created_nodes += 1
 
     def pop(self):
 
@@ -63,7 +63,7 @@ class LinkedList:
         if self.head is None:
             self.tail = None
 
-        self.deleted_nodes += 1
+        self.number_of_deleted_nodes += 1
 
         return value_to_return
 
@@ -71,7 +71,7 @@ class LinkedList:
 
         ''' Return length of the list. '''
 
-        return (self.created_nodes - self.deleted_nodes)
+        return (self.number_of_created_nodes - self.number_of_deleted_nodes)
 
     def search(self, val):
 
@@ -82,7 +82,7 @@ class LinkedList:
             return None
 
         else:
-            return self.head.search_self_or_next_for_a_value(val)
+            return self.head.search_self_or_next_node_for_a_value(val)
 
     def remove(self, node):
 
@@ -103,7 +103,7 @@ class LinkedList:
 
             # The head always has None for a previous node.
             node_before_the_node_to_remove, node_to_remove = \
-                self.head.search_self_or_next_for_identity_match(None, node)
+                self.head.search_self_or_next_node_for_identity_match(None, node)
 
             # If the node being removed is neither the head nor the tail,
             # it needs to bridge the gap in order to be
@@ -132,7 +132,7 @@ class LinkedList:
 
                 self.head = node_to_remove.next_node
 
-        self.deleted_nodes += 1
+        self.number_of_deleted_nodes += 1
 
     def __str__(self):
         # pass
@@ -195,7 +195,7 @@ class Node:
         self.data = None
         self.next_node = None
 
-    def search_self_or_next_for_a_value(self, value):
+    def search_self_or_next_node_for_a_value(self, value):
 
         # This method is the recursive part of LinkedList.search()
 
@@ -206,9 +206,9 @@ class Node:
             return None
 
         else:
-            return self.next_node.search_self_or_next_for_a_value(value)
+            return self.next_node.search_self_or_next_node_for_a_value(value)
 
-    def search_self_or_next_for_identity_match(self, previous_node,
+    def search_self_or_next_node_for_identity_match(self, previous_node,
                                                supplied_node):
 
         # This method is the recursive part of LinkedList.remove()
@@ -226,5 +226,5 @@ class Node:
             # for the last call.
             # It drags up the returned elements from the very bottom.
             return self.next_node \
-                       .search_self_or_next_for_identity_match(
+                       .search_self_or_next_node_for_identity_match(
                            self, supplied_node)
