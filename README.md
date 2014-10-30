@@ -4,12 +4,12 @@ data-structures
 Sample code for classic data structures implemented in Python.
 
 Includes implementations of linked list, queue, doubly-linked list,
-    stack, binary heap.
+    stack, binary heap, priority queue.
 
 Dependencies include Python 2.7
 
 Collaborators:
-    Jason Brokaw (binary_heap)
+    Jason Brokaw (binary_heap and priority queue)
 
 Unit tests were usefully informed by:
 
@@ -33,7 +33,7 @@ Resources used include:
     validate_parenthetics:
         Own memory
 
-    binary_heap:
+    binary_heap (and priority queue):
         most helpful:
         https://github.com/jbbrokaw/data-structures
 
