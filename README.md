@@ -4,13 +4,14 @@ data-structures
 Sample code for classic data structures implemented in Python.
 
 Includes implementations of linked list, queue, doubly-linked list,
-    stack, binary heap, priority queue.
+    stack, binary heap, priority queue, binary search tree.
 
 Dependencies include Python 2.7
 
 Collaborators:
-    Jason Brokaw (binary_heap and priority queue)
-    Charlie Rode (priority queue)
+    Jason Brokaw (binary_heap, priority queue, binary search tree)
+    Charlie Rode (priority queue, binary search tree)
+    Casey MacPhee (binary search tree)
 
 Unit tests were usefully informed by:
 
@@ -20,10 +21,14 @@ Unit tests were usefully informed by:
     http://stackoverflow.com/questions/6103825/
         how-to-properly-use-unit-testings-assertraises-with-nonetype-objects
 
-        http://stackoverflow.com/questions/6181555/
-                pass-a-unit-test-if-an-exception-isnt-thrown
+    http://stackoverflow.com/questions/6181555/
+        pass-a-unit-test-if-an-exception-isnt-thrown
 
-Resources used include:
+    https://github.com/charlieRode/data-structures/blob/bst/test_bst.py
+
+
+
+Resources used include:https://github.com/BFriedland/data-structures/pull/8
 
     linked_list:
         http://en.literateprograms.org/Singly_linked_list_%28Python%29
@@ -44,3 +49,7 @@ Resources used include:
         http://pravin.paratey.com/posts/binary-heaps-and-priority-queues
         http://en.wikipedia.org/wiki/Binary_heap
         http://interactivepython.org/runestone/static/pythonds/Trees/heap.html
+
+    bst:
+        https://github.com/jbbrokaw/data-structures/blob/master/bst.py
+        https://github.com/caseymacphee/Data-structures/blob/master/test_bst.py
