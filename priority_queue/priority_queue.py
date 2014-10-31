@@ -9,12 +9,25 @@
 # https://github.com/jbbrokaw/data-structures/blob/master/binheap.py
 
 
+class Node:
+
+    def __init__(self, value, priority):
+
+        if not value:
+            raise ValueError("Nodes must have a value to be inserted into the priority queue.\nSyntax: Node(value, priority)")
+        else:
+            self.value = value
+        if not priority:
+            raise ValueError("Nodes must have a priority to be inserted into the priority queue.\nSyntax: Node(value, priority)")
+        else:
+            self.priority = priority
+
+
 class PriorityQueue():
-    ''' Create a priority queue with insert(value) and pop() functions,
+    ''' Create a priority queue with insert(item) and pop() functions,
     optionally taking a supplied_iterable keyword parameter. '''
 
     def __init__(self, supplied_iterable=None):
-
 
         self.the_array = [[None]]
 
@@ -30,11 +43,14 @@ class PriorityQueue():
         # For readability later on.
         return (len(self.the_array) - 1)
 
-    def insert(self, value):
-        ''' Insert a new value into the bottom of the priority queue,
+    def insert(self, item):
+        ''' Insert a new item into the bottom of the priority queue,
         maintaining the order of priority. '''
 
-        self.the_array.append(value)
+        if not isinstance(item, Node):
+            raise ValueError("Only Nodes may be inserted into the priority queue.")
+
+        self.the_array.append(item)
         self._up_propagate_priority_order()
 
     def _up_propagate_priority_order(self):
@@ -47,10 +63,10 @@ class PriorityQueue():
         # Prevent index bound errors and only check
         # the immediately following nodes:
         while ((current_index > 1)
-               and (self.the_array[current_index]
-               > self.the_array[parent_index])):
+               and (self.the_array[current_index].priority
+               > self.the_array[parent_index].priority)):
 
-            # Swapping both values at once:
+            # Swapping both items at once:
             self.the_array[current_index], self.the_array[parent_index] \
                 = self.the_array[parent_index], self.the_array[current_index]
 
@@ -59,6 +75,8 @@ class PriorityQueue():
             parent_index = current_index // 2
 
     def peek(self):
+        ''' Return the most important item
+        without removing it from the queue. '''
 
         if len(self.the_array) > 1:
 
@@ -68,10 +86,9 @@ class PriorityQueue():
 
             raise ValueError("Cannot peek at empty queue")
 
-
     def pop(self):
 
-        value_to_return = self.the_array[1]
+        item_to_return = self.the_array[1]
 
         if len(self.the_array) > 2:
             # ... reminded of the standard functions by jbbrokaw...
@@ -81,7 +98,7 @@ class PriorityQueue():
             self.the_array.pop()
             # Since there is no more array, the function has to end.
             # Or else.
-            return value_to_return
+            return item_to_return
 
         # Don't disturb the None.
         else:
@@ -90,9 +107,12 @@ class PriorityQueue():
         # Now ensure it is in fact in order of priority.
         self._down_propagate_priority_order()
 
-        return value_to_return
+        return item_to_return
 
     def _largest_valid_branch(self, current_index):
+
+        # Important: This compares indices everywhere EXCEPT on the
+        # next to last condition, where .priority is compared.
 
         # Legibly name the indices:
         left_branch = (2 * current_index)
@@ -106,8 +126,9 @@ class PriorityQueue():
         if right_branch > highest_branch:
             # Yes, do return the index at (2 * current_index) in this case.
             return left_branch
-        # Otherwise, compare their values and return the greater one:
-        if self.the_array[left_branch] > self.the_array[right_branch]:
+        # Otherwise, compare their items and return the greater one:
+        if self.the_array[left_branch].priority \
+           > self.the_array[right_branch].priority:
             return left_branch
         else:
             return right_branch
@@ -120,8 +141,8 @@ class PriorityQueue():
         the_index_to_swap_from = self._largest_valid_branch(current_index)
 
         while ((the_index_to_swap_from <= self._highest_index())
-               and (self.the_array[the_index_to_swap_from]
-                    > self.the_array[current_index])):
+               and (self.the_array[the_index_to_swap_from].priority
+                    > self.the_array[current_index].priority)):
 
             # Swapswapswap
             self.the_array[current_index],
