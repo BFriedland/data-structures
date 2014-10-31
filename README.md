@@ -10,6 +10,7 @@ Dependencies include Python 2.7
 
 Collaborators:
     Jason Brokaw (binary_heap, priority queue, binary search tree)
+        ((especially bst deletion))
     Charlie Rode (priority queue, binary search tree)
     Casey MacPhee (binary search tree)
 
