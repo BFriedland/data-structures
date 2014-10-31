@@ -352,26 +352,6 @@ class BinarySearchTree:
                     self.delete(leftest_right_subtree_node)
 
 
-
-                '''
-                # DEPRECATED
-
-                # Move the right node to the parent node
-                # to bring the tree closer to zero.
-                # This must all happen simultaneously
-                # unless you want to interpret the logic
-                # again and unwind them taking each
-                # step's changed into account on every line.
-                the_node_to_delete.parent.right,            \
-                    the_node_to_delete.right.parent,        \
-                    the_node_to_delete.right.left,         \
-                    the_node_to_delete.left.parent          \
-                    = the_node_to_delete.right,             \
-                    the_node_to_delete.parent,              \
-                    the_node_to_delete.left,                \
-                    the_node_to_delete.parent
-                '''
-
             # postcases: depth balance size
 
             # Decrement depth by one.
