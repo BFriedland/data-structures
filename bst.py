@@ -1,10 +1,14 @@
 
 class Node:
 
-    def __init__(self, val):
+    def __init__(self, val, depth):
         self.value = val
         self.left = None
         self.right = None
+        # Needed for deletion, to heal our poor tree's severed stumps
+        self.parent = None
+        # Needed for deletion to make updating depth easier
+        self.depth_of_node = depth
 
     def __str__(self):
         # inspired by:
@@ -41,9 +45,9 @@ class BinarySearchTree:
         # verify these things here in the event of an imaginary
         # horizontal attack on tree integrity.
         if self.root_node is None:
-            self.root_node = Node(val)
-            self.size_counter = 1
             self.depth_counter = 1
+            self.root_node = Node(val, depth=1)
+            self.size_counter = 1
             # The center node has balance zero, by definition:
             self.balance_counter = 0
 
@@ -75,14 +79,18 @@ class BinarySearchTree:
 
                     if current_node.left is None:
 
-                        current_node.left = Node(val)
-                        self.size_counter += 1
-
                         # Must be incremented upon completion
-                        # to reflect the newly added branch:
+                        # to reflect the newly added branch.
+                        # Above the new Node construction
+                        # because it is used by it.
                         passes_so_far += 1
                         if self.depth_counter < passes_so_far:
                             self.depth_counter = passes_so_far
+
+                        current_node.left = Node(val, depth=passes_so_far)
+                        current_node.left.parent = current_node
+                        self.size_counter += 1
+
 
                         # This information is related to the first branchpoint;
                         # it cannot be determined from the mere fact we are
@@ -106,14 +114,18 @@ class BinarySearchTree:
 
                     if current_node.right is None:
 
-                        current_node.right = Node(val)
-                        self.size_counter += 1
-
                         # Must be incremented upon completion
-                        # to reflect the newly added branch:
+                        # to reflect the newly added branch.
+                        # Above the new Node construction
+                        # because it is used by it.
                         passes_so_far += 1
                         if self.depth_counter < passes_so_far:
                             self.depth_counter = passes_so_far
+
+                        current_node.right = Node(val, depth=passes_so_far)
+                        current_node.right.parent = current_node
+                        self.size_counter += 1
+
 
                         # This information is related to the first branchpoint;
                         # it cannot be determined from the mere fact we are
@@ -134,7 +146,7 @@ class BinarySearchTree:
                     print("Double violation of no-duplication rule discovered")
                     break
 
-    def contains(self, val):
+    def contains(self, val, return_the_node=False):
         ''' Return True is val is in the binary search tree;
         otherwise, return False. '''
 
@@ -154,30 +166,46 @@ class BinarySearchTree:
 
                 # No-duplication rule:
                 if current_node.value == val:
-                    return True
+
+                    if return_the_node is True:
+                        # NOTE: if there is no such node,
+                        # the return is still False.
+                        return current_node
+
+                    else:
+
+                        return True
 
                 # If it's smaller than the current node,
                 # it must go somewhere on the left.
                 if current_node.value > val:
 
-                    if val > current_node.left.value:
+                    if current_node.left:
 
-                        return False
+                        if val > current_node.left.value:
 
-                    else:
+                            return False
 
-                        current_node = current_node.left
+                        else:
+
+                            current_node = current_node.left
 
                 # Then it must be somewhere on the right.
                 elif current_node.value < val:
 
-                    if val < current_node.right.value:
+                    if current_node.right:
 
-                        return False
+                        if val < current_node.right.value:
 
-                    else:
+                            return False
 
-                        current_node = current_node.right
+                        else:
+
+                            current_node = current_node.right
+
+                elif (not current_node.left) and (not current_node.right):
+
+                    return False
 
                 # Double violation of no-duplication rule
                 else:
@@ -189,6 +217,8 @@ class BinarySearchTree:
 
     def depth(self):
         return self.depth_counter
+        # could probably also call:
+        # return self.return_tree_max_depth()
 
     def balance(self):
         return self.balance_counter
@@ -196,13 +226,227 @@ class BinarySearchTree:
 
 
 
+
+
+
+
+    def delete(self, val, current_node=None):
+
+        if isinstance(current_node, Node):
+            the_node_to_delete = current_node
+        else:
+            the_node_to_delete = self.contains(val, return_the_node=True)
+
+        # contains(val, return_the_node=True) will return False if there
+        # is no node with that value in the tree.
+        if the_node_to_delete == False:
+            # Then the node is not in the tree.
+            # "Fail" gracefully:
+            return
+
+        elif isinstance(the_node_to_delete, Node):
+
+            # If it gets past that check, we know it's in the tree because
+            # self.contains() actually returned a node from the tree.
+            # So, do balance ahead of time:
+            if the_node_to_delete.value == self.root_node.value:
+                # Then it's the root node.
+                # Still needs to be fully considered for deletion,
+                # so we can't end the function when we know this.
+                self.balance_counter += 0  # Syntactic consistency
+            elif the_node_to_delete.value > self.root_node.value:
+                # Righter trees are more negative, lefter trees are more positive.
+                self.balance_counter += 1
+            elif the_node_to_delete.value < self.root_node.value:
+                self.balance_counter -= 1
+
+            # If the node is a "leaf" (ie, it has no descendants),
+            # delete it outright.
+            if ((the_node_to_delete.left is None)
+               and (the_node_to_delete.right is None)):
+
+                if the_node_to_delete.parent.right == the_node_to_delete:
+                    the_node_to_delete.parent.right = None
+
+                if the_node_to_delete.parent.left == the_node_to_delete:
+                    the_node_to_delete.parent.left = None
+
+                # Do we even need to do this if we remove the references?
+                # Yes, since extra-arboreal objects might still contain
+                # references to this node.
+                del the_node_to_delete
+                return
+
+            # If the node is a branch with one descendant,
+            # mend the tree by connecting that descendant to
+            # the node's parent.
+            elif ((the_node_to_delete.right is not None)
+                  and (the_node_to_delete.left is None)):
+
+                the_node_to_delete.parent.right = the_node_to_delete.right
+                the_node_to_delete.right.parent = the_node_to_delete.parent
+
+                del the_node_to_delete
+
+            elif ((the_node_to_delete.right is None)
+                  and (the_node_to_delete.left is not None)):
+
+                the_node_to_delete.parent.left = the_node_to_delete.left
+                the_node_to_delete.left.parent = the_node_to_delete.parent
+
+                del the_node_to_delete
+
+            # If the node is a branch with two descendants,
+            # mend the tree in a way that brings it closer
+            # to a well-balanced state (self.balance == 0)
+            elif ((the_node_to_delete.right is not None)
+                  and (the_node_to_delete.left is not None)):
+
+                # Rebalancing the whole tree has nothing to do with finding
+                # the balance of the subtree, and vice versa.
+
+
+
+
+                # This function returns the length of a given node's subtree.
+                # It is to be called on the_node_to_delete.left AND
+                # the_node_to_delete.right, and whichever returns greater will
+                # be the new replacement node.
+                # If tied, which_way_to_balance_the_whole_tree will decide it.
+                def find_furthest_subtree(each_node, which_way_at_top, current_depth=1):
+
+                    if each_node is None:
+                        return current_depth, each_node.parent
+                    else:
+                        current_depth += 1
+                        # Which way at top is opposite the way we're looking down the subtree.
+                        if which_way_at_top == "Left":
+                            return find_furthest_subtree(each_node.right, "Left", current_depth)
+                        else:
+                            return find_furthest_subtree(each_node.left, "Right", current_depth)
+
+                left_subtree_size, rightest_left_subtree_node = find_furthest_subtree_size_and_node(self.the_node_to_delete.left, "Left")
+                right_subtree_size, leftest_right_subtreenode = find_furthest_subtree_size_and_node(self.the_node_to_delete.right, "Right")
+
+                # Hackishly force one to be bigger if they're equal.
+                # Makes it balance closer to the root.
+                if left_subtree_size == right_subtree_size:
+                    # Add it to the right subtree
+                    # because negative balance is righter.
+                    right_subtree_size += (self.balance / abs(self.balance))
+
+                if left_subtree_size > right_subtree_size:
+                    # Then rebalance the tree using the left subtree as the new replacement node.
+
+                    the_node_to_delete.value = rightest_left_subtree_node.value
+                    # We must run delete() on the rightest left subtree
+                    # node because it could still have a left branch on it.
+                    self.delete(rightest_left_subtree_node)
+
+                elif left_subtree_size < right_subtree_size:
+                    # Then rebalance the tree using the right subtree as the new replacement node.
+
+                    the_node_to_delete.value = leftest_right_subtree_node.value
+                    # We must run delete() on the rightest left subtree
+                    # node because it could still have a left branch on it.
+                    self.delete(leftest_right_subtree_node)
+
+
+
+                '''
+                # DEPRECATED
+
+                # Move the right node to the parent node
+                # to bring the tree closer to zero.
+                # This must all happen simultaneously
+                # unless you want to interpret the logic
+                # again and unwind them taking each
+                # step's changed into account on every line.
+                the_node_to_delete.parent.right,            \
+                    the_node_to_delete.right.parent,        \
+                    the_node_to_delete.right.left,         \
+                    the_node_to_delete.left.parent          \
+                    = the_node_to_delete.right,             \
+                    the_node_to_delete.parent,              \
+                    the_node_to_delete.left,                \
+                    the_node_to_delete.parent
+                '''
+
+            # postcases: depth balance size
+
+            # Decrement depth by one.
+            # Removing one Node can never reduce the depth of
+            # the tree by more than one, if it decrements depth at all.
+            # if the_node_to_delete.depth == self.depth_counter:
+            #   self.dep
+            # ...
+            # Here I realized it's not possible to tell if there's
+            # another node with the same depth on some other branch.
+            # So I made a recursive solution that adds the depth
+            # of every node to a list held by the tree and finds
+            # the max value in that list.
+            # Call it once after node deletion:
+            self.depth = self.return_tree_max_depth()
+            # Note: this only matters if self.depth is an attribute.
+            # Leaving it in for demonstration purposes since that code
+            # already works.
+
+        else:
+            raise TypeError("%s returned by contains but is not Node type"
+                            % (the_node_to_delete))
+
+    def return_tree_max_depth(self):
+        # Reset the old list.
+        # This list is kept in the tree object because
+        # we need lots of little threads to add to it
+        # while they're branching out from each other.
+        # I think having them all return things would
+        # cause return problems or something -- I could
+        # append the result of each thing to a list and
+        # send the list up, but this is easier to debug...
+        self.depth_finder_list = []
+
+        # Init it to zero, since we always start "above" the root node.
+        def recursive_depth_list_builder(root_of_current_comparison,
+                                         depth_at_this_step=0):
+            if not root_of_current_comparison:
+                # This is a tree-level list so that
+                # many recursive branches can all add to it.
+                # I'm virtually certain this is not ideal,
+                # but I also think it'll work!
+                self.depth_finder_list.append(depth_at_this_step)
+                return
+            # Increment this AFTER we determine if there was a node here
+            # or not, since we append this value to the list BEFORE this.
+            depth_at_this_step += 1
+
+            # ... also, cover up any mistakes delete() might have made...
+            # Nothing to see here, move along...
+            if root_of_current_comparison.depth != depth_at_this_step:
+                root_of_current_comparison.depth = depth_at_this_step
+            self.recursive_depth_list_builder(root_of_current_comparison.left,
+                                              depth_at_this_step=depth_at_this_step)
+            self.recursive_depth_list_builder(root_of_current_comparison.right,
+                                              depth_at_this_step=depth_at_this_step)
+            recursive_depth_list_builder(self.root_node)
+
+        # If it didn't return any list contents, it
+        # should return a depth of zero, since that's
+        # how it got that problem in the first place.
+        if len(self.depth_finder_list) == 0:
+            return 0
+        else:
+            return max(self.depth_finder_list)
+
+
     ## DEBUG
     # Reference:
     # http://stackoverflow.com/questions/5444394/
     #    implementing-binary-search-tree-in-python
+
     def in_order_print(self, root_of_current_comparison):
         if not root_of_current_comparison:
-            return
+            return depth_at_this_step
         self.in_order_print(root_of_current_comparison.left)
         print(root_of_current_comparison.value)
         self.in_order_print(root_of_current_comparison.right)
