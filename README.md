@@ -10,6 +10,7 @@ Dependencies include Python 2.7
 
 Collaborators:
     Jason Brokaw (binary_heap and priority queue)
+    Charlie Rode (priority queue)
 
 Unit tests were usefully informed by:
 

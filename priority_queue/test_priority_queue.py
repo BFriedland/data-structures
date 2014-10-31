@@ -14,7 +14,9 @@ class test_PriorityQueue(unittest.TestCase):
 
             # 10, 20, 30, 40, 50, 60, 70, 80
             for each_number in range(10, 81, 10):
-                yield each_number
+                import random
+                random_value = random.randint(400, 500)
+                yield priority_queue.Node(random_value, each_number)
 
         self.populated_priority_queue = priority_queue.PriorityQueue(
             supplied_iterable=craft_iterable())
@@ -32,7 +34,8 @@ class test_PriorityQueue(unittest.TestCase):
         pass-a-unit-test-if-an-exception-isnt-thrown '''
         priority_queue.PriorityQueue()
 
-        priority_queue.PriorityQueue(supplied_iterable="Test string 12()3)\45")
+        with self.assertRaises(Exception):
+            priority_queue.PriorityQueue(supplied_iterable="Test string 12()3)\45")
 
     def test_insert(self):
         ''' .insert() puts a new value into the queue,
@@ -40,11 +43,12 @@ class test_PriorityQueue(unittest.TestCase):
 
         self.setUp()
 
-        self.empty_priority_queue.insert(90)
-        self.assertEquals(self.empty_priority_queue.the_array[1], 90)
+        self.empty_priority_queue.insert(priority_queue.Node("value", 90))
+        self.assertEquals(self.empty_priority_queue.the_array[1].priority, 90)
 
-        self.populated_priority_queue.insert(90)
-        self.assertEquals(self.populated_priority_queue.the_array[1], 90)
+        self.populated_priority_queue.insert(priority_queue.Node("value", 90))
+        self.assertEquals(self.populated_priority_queue.the_array[1].priority,
+                          90)
 
     def test_pop(self):
         ''' .pop() removes the "top" value in the queue,
@@ -58,19 +62,18 @@ class test_PriorityQueue(unittest.TestCase):
             self.empty_priority_queue.pop()
 
         popped_number_for_populated_priority_queue = \
-            self.populated_priority_queue.insert(55)
+            self.populated_priority_queue.insert(priority_queue.Node("value", 55))
 
-        self.assertEquals(priority_queue_array[1], 80)
+        self.assertEquals(priority_queue_array[1].priority, 80)
 
         # Iterate through the array to test the order of priorities on all.
-        for each_node in range(0, len(priority_queue_array) / 2):
+        for each_node in range(1, len(priority_queue_array) / 2):
 
             # I can't believe this method worked on the first run.
+            self.assertEquals((priority_queue_array[each_node].priority
+                               >= priority_queue_array[(each_node * 2)].priority), True)
             self.assertEquals((priority_queue_array[each_node]
-                               >= priority_queue_array[(each_node * 2)]), True)
-            self.assertEquals((priority_queue_array[each_node]
-                               >= priority_queue_array[((each_node * 2) + 1)]),
-                              True)
+                               >= priority_queue_array[((each_node * 2) + 1)].priority), False)
 
 
         with self.assertRaises(TypeError):
@@ -80,38 +83,37 @@ class test_PriorityQueue(unittest.TestCase):
 
         self.setUp()
 
-        self.assertEquals(self.populated_priority_queue.the_array[1], 80)
+        self.assertEquals(self.populated_priority_queue.the_array[1].priority, 80)
 
         # Shortened reference for PEP 8 compliance:
         priority_queue_array = self.populated_priority_queue.the_array
 
         # Iterate through the array to test the order of priorities on all.
-        for each_node in range(0, len(priority_queue_array) / 2):
+        for each_node in range(1, len(priority_queue_array) / 2):
 
-            self.assertEquals((priority_queue_array[each_node]
-                               >= priority_queue_array[(each_node * 2)]), True)
-            self.assertEquals((priority_queue_array[each_node]
-                               >= priority_queue_array[((each_node * 2) + 1)]),
-                              True)
+            self.assertEquals((priority_queue_array[each_node].priority
+                               >= priority_queue_array[(each_node * 2)].priority), True)
+            self.assertEquals((priority_queue_array[each_node].priority
+                               >= priority_queue_array[((each_node * 2) + 1)].priority), True)
 
     def test_peek(self):
 
         self.setUp()
 
-        self.assertEquals(self.populated_priority_queue.peek(), 80)
+        self.assertEquals(self.populated_priority_queue.peek().priority, 80)
 
-        self.empty_priority_queue.insert(90)
-        self.assertEquals(self.empty_priority_queue.peek(), 90)
+        self.empty_priority_queue.insert(priority_queue.Node("value", 90))
+        self.assertEquals(self.empty_priority_queue.peek().priority, 90)
 
-        self.empty_priority_queue.insert(10)
-        self.assertEquals(self.empty_priority_queue.peek(), 90)
+        self.empty_priority_queue.insert(priority_queue.Node("value", 10))
+        self.assertEquals(self.empty_priority_queue.peek().priority, 90)
 
-        self.empty_priority_queue.insert(100)
-        self.assertEquals(self.empty_priority_queue.peek(), 100)
+        self.empty_priority_queue.insert(priority_queue.Node("value", 100))
+        self.assertEquals(self.empty_priority_queue.peek().priority, 100)
 
 
         with self.assertRaises(TypeError):
-            self.empty_priority_queue.peek(100)
+            self.empty_priority_queue.peek(100).priority
 
 
 
