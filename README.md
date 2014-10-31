@@ -1,6 +1,8 @@
 data-structures
 ===============
 
+[![Build Status](https://travis-ci.org/BFriedland/data-structures.svg)](https://travis-ci.org/BFriedland/data-structures)
+
 Sample code for classic data structures implemented in Python.
 
 Includes implementations of linked list, queue, doubly-linked list,
