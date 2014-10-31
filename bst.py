@@ -218,17 +218,10 @@ class BinarySearchTree:
     def depth(self):
         return self.depth_counter
         # could probably also call:
-        # return self.return_tree_max_depth()
+        # return self._return_tree_max_depth()
 
     def balance(self):
         return self.balance_counter
-
-
-
-
-
-
-
 
     def delete(self, val, current_node=None):
 
@@ -239,7 +232,7 @@ class BinarySearchTree:
 
         # contains(val, return_the_node=True) will return False if there
         # is no node with that value in the tree.
-        if the_node_to_delete == False:
+        if the_node_to_delete is False:
             # Then the node is not in the tree.
             # "Fail" gracefully:
             return
@@ -255,7 +248,8 @@ class BinarySearchTree:
                 # so we can't end the function when we know this.
                 self.balance_counter += 0  # Syntactic consistency
             elif the_node_to_delete.value > self.root_node.value:
-                # Righter trees are more negative, lefter trees are more positive.
+                # Righter trees are more negative,
+                # lefter trees are more positive.
                 self.balance_counter += 1
             elif the_node_to_delete.value < self.root_node.value:
                 self.balance_counter -= 1
@@ -302,31 +296,33 @@ class BinarySearchTree:
             elif ((the_node_to_delete.right is not None)
                   and (the_node_to_delete.left is not None)):
 
-                # Rebalancing the whole tree has nothing to do with finding
-                # the balance of the subtree, and vice versa.
-
-
-
-
                 # This function returns the length of a given node's subtree.
                 # It is to be called on the_node_to_delete.left AND
                 # the_node_to_delete.right, and whichever returns greater will
                 # be the new replacement node.
                 # If tied, which_way_to_balance_the_whole_tree will decide it.
-                def find_furthest_subtree(each_node, which_way_at_top, current_depth=1):
+                def _find_furthest_subtree_size_and_node(
+                        each_node, which_way_at_top, current_depth=1):
 
                     if each_node is None:
                         return current_depth, each_node.parent
                     else:
                         current_depth += 1
-                        # Which way at top is opposite the way we're looking down the subtree.
+                        # Which way at top is opposite the way
+                        # we're looking down the subtree.
                         if which_way_at_top == "Left":
-                            return find_furthest_subtree(each_node.right, "Left", current_depth)
+                            return _find_furthest_subtree_size_and_node(
+                                each_node.right, "Left", current_depth)
                         else:
-                            return find_furthest_subtree(each_node.left, "Right", current_depth)
+                            return _find_furthest_subtree_size_and_node(
+                                each_node.left, "Right", current_depth)
 
-                left_subtree_size, rightest_left_subtree_node = find_furthest_subtree_size_and_node(self.the_node_to_delete.left, "Left")
-                right_subtree_size, leftest_right_subtreenode = find_furthest_subtree_size_and_node(self.the_node_to_delete.right, "Right")
+                left_subtree_size, rightest_left_subtree_node \
+                    = _find_furthest_subtree_size_and_node(
+                        self.the_node_to_delete.left, "Left")
+                right_subtree_size, leftest_right_subtreenode \
+                    = _find_furthest_subtree_size_and_node(
+                        self.the_node_to_delete.right, "Right")
 
                 # Hackishly force one to be bigger if they're equal.
                 # Makes it balance closer to the root.
@@ -336,7 +332,8 @@ class BinarySearchTree:
                     right_subtree_size += (self.balance / abs(self.balance))
 
                 if left_subtree_size > right_subtree_size:
-                    # Then rebalance the tree using the left subtree as the new replacement node.
+                    # Then rebalance the tree using the left
+                    # subtree as the new replacement node.
 
                     the_node_to_delete.value = rightest_left_subtree_node.value
                     # We must run delete() on the rightest left subtree
@@ -344,29 +341,22 @@ class BinarySearchTree:
                     self.delete(rightest_left_subtree_node)
 
                 elif left_subtree_size < right_subtree_size:
-                    # Then rebalance the tree using the right subtree as the new replacement node.
+                    # Then rebalance the tree using the right
+                    # subtree as the new replacement node.
 
                     the_node_to_delete.value = leftest_right_subtree_node.value
                     # We must run delete() on the rightest left subtree
                     # node because it could still have a left branch on it.
                     self.delete(leftest_right_subtree_node)
 
-
-            # postcases: depth balance size
-
-            # Decrement depth by one.
-            # Removing one Node can never reduce the depth of
-            # the tree by more than one, if it decrements depth at all.
-            # if the_node_to_delete.depth == self.depth_counter:
-            #   self.dep
-            # ...
-            # Here I realized it's not possible to tell if there's
-            # another node with the same depth on some other branch.
+            # I realized it's not possible to tell if there's
+            # another node with the same depth on some other branch
+            # when trying to find depth via the Node attribute.
             # So I made a recursive solution that adds the depth
             # of every node to a list held by the tree and finds
             # the max value in that list.
             # Call it once after node deletion:
-            self.depth = self.return_tree_max_depth()
+            self.depth = self._return_tree_max_depth()
             # Note: this only matters if self.depth is an attribute.
             # Leaving it in for demonstration purposes since that code
             # already works.
@@ -375,7 +365,7 @@ class BinarySearchTree:
             raise TypeError("%s returned by contains but is not Node type"
                             % (the_node_to_delete))
 
-    def return_tree_max_depth(self):
+    def _return_tree_max_depth(self):
         # Reset the old list.
         # This list is kept in the tree object because
         # we need lots of little threads to add to it
@@ -384,17 +374,17 @@ class BinarySearchTree:
         # cause return problems or something -- I could
         # append the result of each thing to a list and
         # send the list up, but this is easier to debug...
-        self.depth_finder_list = []
+        self._depth_finder_list = []
 
         # Init it to zero, since we always start "above" the root node.
-        def recursive_depth_list_builder(root_of_current_comparison,
-                                         depth_at_this_step=0):
+        def _recursive_depth_list_builder(root_of_current_comparison,
+                                          depth_at_this_step=0):
             if not root_of_current_comparison:
                 # This is a tree-level list so that
                 # many recursive branches can all add to it.
                 # I'm virtually certain this is not ideal,
                 # but I also think it'll work!
-                self.depth_finder_list.append(depth_at_this_step)
+                self._depth_finder_list.append(depth_at_this_step)
                 return
             # Increment this AFTER we determine if there was a node here
             # or not, since we append this value to the list BEFORE this.
@@ -404,19 +394,19 @@ class BinarySearchTree:
             # Nothing to see here, move along...
             if root_of_current_comparison.depth != depth_at_this_step:
                 root_of_current_comparison.depth = depth_at_this_step
-            self.recursive_depth_list_builder(root_of_current_comparison.left,
-                                              depth_at_this_step=depth_at_this_step)
-            self.recursive_depth_list_builder(root_of_current_comparison.right,
-                                              depth_at_this_step=depth_at_this_step)
-            recursive_depth_list_builder(self.root_node)
+            self._recursive_depth_list_builder(root_of_current_comparison.left,
+                                               depth_at_this_step=depth_at_this_step)
+            self._recursive_depth_list_builder(root_of_current_comparison.right,
+                                               depth_at_this_step=depth_at_this_step)
+            _recursive_depth_list_builder(self.root_node)
 
         # If it didn't return any list contents, it
         # should return a depth of zero, since that's
         # how it got that problem in the first place.
-        if len(self.depth_finder_list) == 0:
+        if len(self._depth_finder_list) == 0:
             return 0
         else:
-            return max(self.depth_finder_list)
+            return max(self._depth_finder_list)
 
 
     ## DEBUG
@@ -424,9 +414,14 @@ class BinarySearchTree:
     # http://stackoverflow.com/questions/5444394/
     #    implementing-binary-search-tree-in-python
 
+    # Is a public function, so no underscore.
     def in_order_print(self, root_of_current_comparison):
+        ''' Print the entire tree in ascending order of value.
+        This function is always called with a Node from the tree
+        it's called on. To print the whole tree, call:
+        self.in_order_print(self.root_node) '''
         if not root_of_current_comparison:
-            return depth_at_this_step
+            return
         self.in_order_print(root_of_current_comparison.left)
         print(root_of_current_comparison.value)
         self.in_order_print(root_of_current_comparison.right)
