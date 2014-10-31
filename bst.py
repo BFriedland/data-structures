@@ -235,7 +235,7 @@ class BinarySearchTree:
         if the_node_to_delete is False:
             # Then the node is not in the tree.
             # "Fail" gracefully:
-            return
+            return None
 
         elif isinstance(the_node_to_delete, Node):
 
@@ -269,7 +269,7 @@ class BinarySearchTree:
                 # Yes, since extra-arboreal objects might still contain
                 # references to this node.
                 del the_node_to_delete
-                return
+                return None
 
             # If the node is a branch with one descendant,
             # mend the tree by connecting that descendant to
@@ -360,6 +360,8 @@ class BinarySearchTree:
             # Note: this only matters if self.depth is an attribute.
             # Leaving it in for demonstration purposes since that code
             # already works.
+
+            return None
 
         else:
             raise TypeError("%s returned by contains but is not Node type"
