@@ -6,13 +6,19 @@ data-structures
 Sample code for classic data structures implemented in Python.
 
 Includes implementations of linked list, queue, doubly-linked list,
-    stack, binary heap, priority queue, binary search tree.
+    stack, binary heap, priority queue, binary search tree, and
+    a simple graph structure.
+
+Simple graphs behave as the computer science notion of a graph, containing
+    vertices (Nodes) and Edges. The user interacts with the graph by value
+    rather than interacting with the abstraction (this was an issue of some
+    concern in the specifications).
 
 Dependencies include Python 2.7
 
 Collaborators:
-    Jason Brokaw (binary_heap, priority queue, binary search tree)
-        ((especially bst deletion))
+    Jason Brokaw (binary_heap, priority queue, binary search tree,
+        simple graph) ((especially bst deletion))
     Charlie Rode (priority queue, binary search tree)
     Casey MacPhee (binary search tree)
 
@@ -28,8 +34,6 @@ Unit tests were usefully informed by:
         pass-a-unit-test-if-an-exception-isnt-thrown
 
     https://github.com/charlieRode/data-structures/blob/bst/test_bst.py
-
-
 
 Resources used include:https://github.com/BFriedland/data-structures/pull/8
 
