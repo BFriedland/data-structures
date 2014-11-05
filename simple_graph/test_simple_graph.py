@@ -22,6 +22,7 @@ g.adjacent(n1, n2): returns True if there is an edge connecting n1 and
     are not in g
 '''
 
+
 class test_Graph(unittest.TestCase):
 
     def setUp(self):
@@ -32,18 +33,18 @@ class test_Graph(unittest.TestCase):
         self.empty_graph = simple_graph.Graph()
 
         self.linear_graph = simple_graph.Graph()
-
         for each_integer in range(0, 10):
             self.linear_graph.add_node(each_integer)
-        for each_index in range(1, (len(self.linear_graph.node_list)-1)):
-            self.linear_graph.add_edge(each_node_index, (each_node+1))
+        # range(0, 10) gives 0 though 9 and len(that) gives 10
+        for each_index in range(1, len(self.linear_graph.node_list)):
+            self.linear_graph.add_edge((each_index - 1), each_index)
 
         self.circular_graph = simple_graph.Graph()
-
         for each_integer in range(0, 10):
             self.circular_graph.add_node(each_integer)
-        for each_index in range(1, (len(self.circular_graph.node_list)-1)):
-            self.circular_graph.add_edge(each_node_index, (each_node_index+1))
+        # range(0, 10) gives 0 though 9 and len(that) gives 10
+        for each_index in range(1, len(self.circular_graph.node_list)):
+            self.circular_graph.add_edge((each_index - 1), each_index)
         # Tie the graph chain together at the ends:
         self.circular_graph.add_edge(0, (len(self.circular_graph.node_list)-1))
 
@@ -64,28 +65,9 @@ class test_Graph(unittest.TestCase):
 
     def test_nodes(self):
 
+        # This also tests add_node()
+
         self.setUp()
-
-        with self.assertRaises(Exception):
-            self.empty_graph.nodes("Test string")
-        with self.assertRaises(Exception):
-            self.empty_graph.nodes(5)
-        with self.assertRaises(Exception):
-            self.empty_graph.nodes(Node())
-
-        with self.assertRaises(Exception):
-            self.linear_graph.nodes("Test string")
-        with self.assertRaises(Exception):
-            self.linear_graph.nodes(5)
-        with self.assertRaises(Exception):
-            self.linear_graph.nodes(Node())
-
-        with self.assertRaises(Exception):
-            self.circular_graph.nodes("Test string")
-        with self.assertRaises(Exception):
-            self.circular_graph.nodes(5)
-        with self.assertRaises(Exception):
-            self.circular_graph.nodes(Node())
 
         empty_graph_nodes = self.empty_graph.nodes()
         linear_graph_nodes = self.linear_graph.nodes()
@@ -96,32 +78,13 @@ class test_Graph(unittest.TestCase):
         assert len(linear_graph_nodes) == 10
         assert isinstance(linear_graph_nodes, list)
         assert len(circular_graph_nodes) == 10
-        assert isinstance(cicular_graph_nodes, list)
+        assert isinstance(circular_graph_nodes, list)
 
     def test_edges(self):
 
+        ## This also tests add_edge()
+
         self.setUp()
-
-        with self.assertRaises(Exception):
-            self.empty_graph.edges("Test string")
-        with self.assertRaises(Exception):
-            self.empty_graph.edges(5)
-        with self.assertRaises(Exception):
-            self.empty_graph.edges(Node())
-
-        with self.assertRaises(Exception):
-            self.linear_graph.edges("Test string")
-        with self.assertRaises(Exception):
-            self.linear_graph.edges(5)
-        with self.assertRaises(Exception):
-            self.linear_graph.edges(Node())
-
-        with self.assertRaises(Exception):
-            self.circular_graph.edges("Test string")
-        with self.assertRaises(Exception):
-            self.circular_graph.edges(5)
-        with self.assertRaises(Exception):
-            self.circular_graph.edges(Node())
 
         empty_graph_edges = self.empty_graph.edges()
         linear_graph_edges = self.linear_graph.edges()
@@ -129,15 +92,46 @@ class test_Graph(unittest.TestCase):
 
         assert len(empty_graph_edges) == 0
         assert isinstance(empty_graph_edges, list)
-        assert len(linear_graph_edges) == 10
+        assert len(linear_graph_edges) == 9
         assert isinstance(linear_graph_edges, list)
-        assert len(circular_graph_edges) == 11
-        assert isinstance(cicular_graph_edges, list)
+        assert len(circular_graph_edges) == 10
+        assert isinstance(circular_graph_edges, list)
 
-        for each_edge_index in range(0, len(linear_graph_edges)):
-            assert len(linear_graph_edges)[each_edge_index] == 2
-        for each_edge_index in range(0, len(circular_graph_edges)):
-            assert len(circular_graph_edges)[each_edge_index] == 2
+    def test_has_node(self):
+        ''' g.has_node(n): True if node 'n' is
+        contained in the graph, False if not. '''
+
+        self.setUp()
+
+        assert self.empty_graph.has_node(1) is False
+
+        with self.assertRaises(Exception):
+            self.empty_graph.has_node()
+        with self.assertRaises(Exception):
+            self.empty_graph.has_node(Edge())
+
+        with self.assertRaises(Exception):
+            self.linear_graph.has_node()
+        with self.assertRaises(Exception):
+            assert self.linear_graph.has_node("1") is True
+        with self.assertRaises(Exception):
+            self.linear_graph.has_node(Edge())
+
+        with self.assertRaises(Exception):
+            self.circular_graph.has_node()
+        with self.assertRaises(Exception):
+            assert self.circular_graph.has_node("1") is True
+        with self.assertRaises(Exception):
+            self.circular_graph.has_node(Edge())
+
+        for each_node_it_has in self.linear_graph.node_list:
+            assert self.linear_graph.has_node(each_node_it_has.value)
+        for each_node_it_has in self.circular_graph.node_list:
+            assert self.circular_graph.has_node(each_node_it_has.value)
+
+
+
+
 
     def test_del_node(self):
         ''' g.del_node(n): deletes the node 'n' from the graph,
@@ -167,29 +161,24 @@ class test_Graph(unittest.TestCase):
             self.circular_graph.del_node(None)
 
         deleted_linear_graph_nodes = []
-        for each_integer in range(0, 3):
-            # Uses the integer as an index,
-            # since we know the graph has >3 members:
-            node_to_delete = self.linear_graph.nodes[each_integer]
-            node_to_delete.value = each_integer
+        for each_integer in range(100, 103):
+            node_to_delete = self.linear_graph.add_node(each_integer,
+                                                        _returning=True)
             deleted_linear_graph_nodes.append(node_to_delete.value)
             self.linear_graph.del_node(each_integer)
 
         deleted_circular_graph_nodes = []
-        for each_integer in range(0, 3):
-            # Uses the integer as an index,
-            # since we know the graph has >3 members:
-            node_to_delete = self.circular_graph.nodes[each_integer]
-            node_to_delete.value = each_integer
+        for each_integer in range(100, 103):
+            node_to_delete = self.circular_graph.add_node(each_integer,
+                                                          _returning=True)
             deleted_circular_graph_nodes.append(each_integer)
             self.circular_graph.del_node(each_integer)
 
-        linear_graph_nodes = self.linear_graph.nodes
-        circular_graph_nodes = self.circular_graph.nodes
+        circular_graph_nodes = self.circular_graph.node_list
 
-        for each_node in linear_graph_nodes:
+        for each_node in self.linear_graph.node_list:
             assert each_node.value not in deleted_linear_graph_nodes
-        for each_node in circular_graph_nodes:
+        for each_node in self.circular_graph.node_list:
             assert each_node.value not in deleted_circular_graph_nodes
 
     def test_del_edge(self):
@@ -219,68 +208,24 @@ class test_Graph(unittest.TestCase):
         with self.assertRaises(Exception):
             self.circular_graph.del_edge(None)
 
-        assert self.linear_graph.has_edge(1, 2) is True
-        assert self.circular_graph.has_edge(1, 2) is True
-
-        deleted_linear_graph_edges
-
         self.linear_graph.del_edge(1, 2)
         self.circular_graph.del_edge(1, 2)
 
         # Make sure the Edges are not in the Graph:
-        linear_graph_edges = self.linear_graph.edges
-        circular_graph_edges = self.circular_graph.edges
+        for each_edge in self.linear_graph.edge_list:
+            assert ((each_edge.alpha_node != 1)
+                    and (each_edge.beta_node != 2))
 
-        for each_edge in linear_graph_edges:
-            for each_other_edge in deleted_linear_graph_edges:
-                assert (each_edge.nodes[0] != each_other_edge.nodes[0]) \
-                    and (each_edge.nodes[1] != each_other_edge.nodes[1])
-        for each_edge in circular_graph_edges:
-            for each_other_edge in deleted_circular_graph_edges:
-                assert (each_edge.nodes[0] != each_other_edge.nodes[0]) \
-                    and (each_edge.nodes[1] != each_other_edge.nodes[1])
-
-    def test_has_node(self):
-        ''' g.has_node(n): True if node 'n' is
-        contained in the graph, False if not. '''
-
-        self.setUp()
-
-        with self.assertRaises(Exception):
-            self.empty_graph.has_node()
-        with self.assertRaises(Exception):
-            self.empty_graph.has_node(1)
-        with self.assertRaises(Exception):
-            self.empty_graph.has_node(Edge())
-
-        with self.assertRaises(Exception):
-            self.linear_graph.has_node()
-        with self.assertRaises(Exception):
-            self.linear_graph.has_node(1)
-        with self.assertRaises(Exception):
-            self.linear_graph.has_node(Edge())
-
-        with self.assertRaises(Exception):
-            self.circular_graph.has_node()
-        with self.assertRaises(Exception):
-            self.circular_graph.has_node(1)
-        with self.assertRaises(Exception):
-            self.circular_graph.has_node(Edge())
-
-        for each_node_it_has in self.linear_graph.nodes:
-            assert self.linear_graph.has_node(each_node_it_has.value)
-        for each_node_it_has in self.circular_graph.nodes:
-            assert self.circular_graph.has_node(each_node_it_has.value)
-
+        for each_edge in self.circular_graph.edge_list:
+            assert ((each_edge.alpha_node != 1)
+                    and (each_edge.beta_node != 2))
 
     def test_neighbors(self):
 
         ''' g.neighbors(n): returns the list of all nodes connected
         to 'n' by edges, raises an error if n is not in g '''
 
-
         self.setUp()
-
 
         with self.assertRaises(Exception):
             self.empty_graph.neighbors()
@@ -292,14 +237,14 @@ class test_Graph(unittest.TestCase):
         with self.assertRaises(Exception):
             self.linear_graph.neighbors()
         with self.assertRaises(Exception):
-            self.linear_graph.neighbors(1)
+            self.linear_graph.neighbors(11)
         with self.assertRaises(Exception):
             self.linear_graph.neighbors(Edge())
 
         with self.assertRaises(Exception):
             self.circular_graph.neighbors()
         with self.assertRaises(Exception):
-            self.circular_graph.neighbors(1)
+            self.circular_graph.neighbors(11)
         with self.assertRaises(Exception):
             self.circular_graph.neighbors(Edge())
 
@@ -312,18 +257,21 @@ class test_Graph(unittest.TestCase):
         with self.assertRaises(Exception):
             self.circular_graph.neighbors(Node())
 
-        self.empty_graph.add_node(0)
         # Add new nodes connected with Edges to the immediately previous Node:
-        for each_integer in range(1, 10):
+        for each_integer in range(0, 10):
             self.empty_graph.add_node(each_integer)
             self.empty_graph.add_edge(each_integer, (each_integer - 1))
 
-        for each_node in self.empty_graph.nodes:
-            for each_neighbor in each_node.neighbors():
-                # Disallow edge cases; this is linear, not circular.
-                if each_node.value != 0 and each_neighbor.value != 10:
-                    assert abs(each_node.value - each_neighbor.value) == 1
-
+        for each_node in self.empty_graph.node_list:
+            # Without this line I'd be declaring .value in two lower lines...
+            each_node_value = each_node.value
+            # each_node.value is because neighbors() takes a value, not a Node.
+            for each_neighbor_value \
+               in self.empty_graph.neighbors(each_node_value):
+                # If the neighbor values of a given value in an
+                # int(1)-stepped list are all +/- 1,
+                # then neighbors() works.
+                assert abs(each_node_value - each_neighbor_value) == 1
 
 
     def test_adjacent(self):
@@ -360,15 +308,10 @@ class test_Graph(unittest.TestCase):
         self.empty_graph.add_node(3)
         self.empty_graph.add_node(4)
 
-        new_edge_one = Edge(1, 2)
-        new_edge_two = Edge(2, 3)
-        new_edge_three = Edge(3, 4)
-        new_edge_four = Edge(4, 1)
-
-        self.empty_graph.add_edge(1)
-        self.empty_graph.add_edge(2)
-        self.empty_graph.add_edge(3)
-        self.empty_graph.add_edge(4)
+        self.empty_graph.add_edge(1, 2)
+        self.empty_graph.add_edge(2, 3)
+        self.empty_graph.add_edge(3, 4)
+        self.empty_graph.add_edge(4, 1)
 
         assert self.empty_graph.adjacent(1, 2) is True
         assert self.empty_graph.adjacent(2, 3) is True
@@ -378,3 +321,6 @@ class test_Graph(unittest.TestCase):
         assert self.empty_graph.adjacent(1, 3) is False
         assert self.empty_graph.adjacent(2, 4) is False
 
+
+
+unittest.main()
