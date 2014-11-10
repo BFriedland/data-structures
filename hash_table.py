@@ -1,21 +1,3 @@
-# for the purposes of this assignment you can use a more naive
-# hashing function, one that sums the ordinal values of the characters
-# in a key and uses the modulus operator to fold the result into one of
-# the available container indexes in the table
-
-# Your table should have the following properties:
-
-# It should be of fixed size.  The number of slots in the table should be
-#     determined when the table is initialized, by passing an argument:
-#         ``foo = HashTable(1024)``
-# It should handle hash collisions by using 'buckets' to contain any
-#     values that share a hash
-# It should accept only strings as keys.  If a non-string is provided,
-#     the 'set' method should raise an appropriate Python exception.
-# It should implement the following methods:
-# get(key) - should return the value stored with the given key
-# set(key, val) - should store the given val using the given key
-# hash(key) - should hash the key provided
 
 
 class HashTable:
@@ -24,7 +6,7 @@ class HashTable:
 
         self.hash_table = []
 
-        if (not  isinstance(size, int)) or (size < 1):
+        if (not isinstance(size, int)) or (size < 1):
             # HashTables with sizes beneath 1 may cause the god of logic
             # to spontaneously generate black holes in your CPU.
             # Save the Earth by issuing a ValueError:
