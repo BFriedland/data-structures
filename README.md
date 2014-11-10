@@ -14,6 +14,19 @@ Simple graphs behave as the computer science notion of a graph, containing
     rather than interacting with the abstraction (this was an issue of some
     concern in the specifications).
 
+hash_table.py will allow the construction of hash tables of user-defined
+    sizes that allow only strings for keys.
+
+    The hashing algorithm used combines bit rotation and XOR hashing, and
+        was researched from:
+        http://www.eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
+
+    The library will accept any positive integer table size; to optimize
+        for performance, the user is expected to determine their own ideal
+        hash table size, which is likely to be around 1.6 times the size of
+        the anticipated inputs, according to people with evaluation criteria
+        I have not yet had time to research.
+
 Dependencies include Python 2.7
 
 Collaborators:
@@ -60,3 +73,7 @@ Resources used include:https://github.com/BFriedland/data-structures/pull/8
     bst:
         https://github.com/jbbrokaw/data-structures/blob/master/bst.py
         https://github.com/caseymacphee/Data-structures/blob/master/test_bst.py
+
+    hash_table:
+        http://www.eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
+        https://github.com/jbbrokaw/data-structures/blob/master/test_hashtable.py
