@@ -1,6 +1,41 @@
+# Rotating XOR Hash Table
+#
+# Author: Ben Friedland << friedland.ben@gmail.com >>
+# URL: << http://benfriedland.com/ >>
+# GitHub: << github.com/BFriedland >>
+# For license information, see LICENSE file.
+
+'''
+hash_table.py will allow the construction of HashTable objects
+    of user defined sizes that permit only str-type objects for keys.
+
+    The hashing algorithm used combines bit rotation and XOR hashing, and
+        was researched from:
+        http://www.eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
+
+    HashTables will accept any positive integer table size; to optimize
+        for performance, the user is expected to determine their own ideal
+        hash table size, which is likely to be around 1.6 times the size of
+        the anticipated inputs, according to people with evaluation criteria
+        I have not yet had time to research.
+
+    HashTable objects may be instantiated by calling:
+        HashTable(size)
+
+    HashTable methods include:
+        get(key)
+            Retrieve from the hash table the value associated with
+            the given key string.
+        set(key, value)
+            Set the value for key in the HashTable to refer to value.
+        hash(key)
+            Return the hash of a given key string.
+'''
 
 
 class HashTable:
+
+    ''' HashTable methods include get(key), set(key, value) and hash(key) '''
 
     def __init__(self, size):
 
@@ -20,6 +55,8 @@ class HashTable:
             self.hash_table.append([])
 
     def get(self, key):
+        ''' Retrieve from the hash table the
+        value associated with the given key string. '''
 
         if not isinstance(key, str):
             raise KeyError("key must be type str")
@@ -59,7 +96,7 @@ class HashTable:
         raise KeyError("{}".format(key))
 
     def set(self, key, value):
-
+        ''' Set the value for key in the HashTable to refer to value. '''
         if not isinstance(key, str):
             raise KeyError("key must be type str")
 
@@ -99,7 +136,7 @@ class HashTable:
             bucket_to_put_it_in.append([key, value])
 
     def hash(self, key):
-        ''' Return the hash value of a given string. '''
+        ''' Return the hash of a given key string. '''
 
         # Informed/partially reinterpreted from:
         # http://www.eternallyconfuzzled.com/
