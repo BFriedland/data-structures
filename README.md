@@ -21,11 +21,23 @@ hash_table.py will allow the construction of hash tables of user-defined
         was researched from:
         http://www.eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
 
-    The library will accept any positive integer table size; to optimize
+    HashTables will accept any positive integer table size; to optimize
         for performance, the user is expected to determine their own ideal
         hash table size, which is likely to be around 1.6 times the size of
         the anticipated inputs, according to people with evaluation criteria
         I have not yet had time to research.
+
+    HashTable objects may be instantiated by calling:
+        HashTable(size)
+
+    HashTable methods include:
+        get(key)
+            Retrieve from the hash table the value associated with
+            the given key string.
+        set(key, value)
+            Set the value for key in the HashTable to refer to value.
+        hash(key)
+            Return the hash of a given key string.
 
 Dependencies include Python 2.7
 
