@@ -1,17 +1,5 @@
 
-# the heapq docs contain notes about how to make a priority queue with heapq
-# Queue.PriorityQueue also has stuff.
-#   timeout is only because of multiprocessing,
-#       no need to care about that for this
-# it's not push() and pop(),
-# it's put() and get()
-# Queue.Queue is best sez DTH, cause of simplification
-# priorityqueue needs tuples (priority, value)
-# it is sorted in min priority order: 1, 2, 3, 4...
-
 from Queue import Queue
-
-
 
 
 class Node:
@@ -137,8 +125,9 @@ class TraversableGraph:
                 self.node_list.remove(each_node)
 
     def del_edge(self, n1, n2):
-        ''' Delete the Edge connecting the Nodes with values n1 and n2
-        from the TraversableGraph. Raise an exception if no such Edge exists. '''
+        ''' Delete the Edge connecting the Nodes with values
+        n1 and n2 from the TraversableGraph. If no such Edge
+        exists, raise an exception. '''
 
         found_the_correct_edge = False
         for each_edge in self.edge_list:
@@ -154,33 +143,41 @@ class TraversableGraph:
                     # Tell Python it doesn't have to freak out:
                     found_the_correct_edge = True
         if found_the_correct_edge is False:
-            raise Exception("Edge ({}, {}) not in TraversableGraph".format(n1, n2))
+            raise Exception("Edge ({}, {}) not in TraversableGraph".format(n1,
+                                                                           n2))
 
     def neighbors(self, n):
         ''' Return the list of all Nodes connected to Node n by Edges.
         Raise an exception if n is not in the TraversableGraph. '''
 
         if self.has_node(n) is False:
-            raise Exception("{} not in TraversableGraph.\nTraversableGraphlist: {}".format(n.value,
-                            self.nodes()))
+            raise Exception("{} not in TraversableGraph.\n"
+                            "TraversableGraphlist:\n"
+                            "{}".format(n.value, self.nodes()))
 
-        list_of_nodes_connected_to_n = []
+        list_of_values_of_neighbors = []
+
+        this_node = self._return_node_with_this_value(n)
+
+        # Using the value of the Node, check this Node for Edges.
+        if this_node.edges_for_this_node is None:
+            return
 
         # Append the neighbors' values but not the supplied value:
-        for each_edge in self.edge_list:
+        for each_edge in this_node.edges_for_this_node:
 
-            if ((each_edge.alpha_node.value != n)
-               and (each_edge.beta_node.value == n)):
+            if ((each_edge.alpha_node != this_node)
+               and (each_edge.beta_node == this_node)):
 
-                list_of_nodes_connected_to_n.append(each_edge.alpha_node.value)
+                list_of_values_of_neighbors.append(each_edge.alpha_node.value)
 
             # Elif prevents multiple inclusion for Nodes with duplicate values:
-            elif ((each_edge.alpha_node.value == n)
-               and (each_edge.beta_node.value != n)):
+            elif ((each_edge.alpha_node == this_node)
+               and (each_edge.beta_node != this_node)):
 
-                list_of_nodes_connected_to_n.append(each_edge.beta_node.value)
+                list_of_values_of_neighbors.append(each_edge.beta_node.value)
 
-        return list_of_nodes_connected_to_n
+        return list_of_values_of_neighbors
 
     def adjacent(self, n1, n2):
         ''' Return True if Nodes with values n1 and n2
@@ -213,47 +210,31 @@ class TraversableGraph:
                 return each_edge
         raise Exception("Internal structure error: failed Edge Node indexing")
 
-    # g.depth_first_traversal(start):
-    #     Perform a full depth-first traversal of the graph beginning at start.
-    #     Return the full visited path when traversal is complete.
     def depth_first_traversal(self, start):
+        ''' Perform a full depth-first traversal of the graph beginning
+        at start. Return the full visited path when traversal is complete. '''
+
+        # A depth-first traversal algorithm is the same thing as
+        # a breadth-first traversal algorithm, except it uses a stack
+        # instead of a queue.
 
         # Well-informed (possibly to the point of nearly copying) by:
         # http://eddmann.com/posts/
         #    depth-first-search-and-breadth-first-search-in-python/
 
+        starting_node = self._return_node_with_this_value(start)
+
         # Seed the stack with where ever we're starting.
-        stack_to_visit = [self._return_node_with_this_value(start)]
-        # The visited nodes list will serve as a record of our path.
+        stack_to_visit = [starting_node]
+
+        # The visited Nodes list will serve as a record of our path.
         previously_visited_nodes = []
-        ## DEBUGGING
-        previous_values = []
-        ## / DEBUGGING
+        nodes_already_added_to_stack = []
 
-        # To demonstrate that the order of lists is constant:
-        crossed_edges = []
-
-        # Due to mid-loop population of the graph, this will
-        # continue until the end of the graph has been reached:
-        # ... this was wrong
-        # It allows things unconnected to the graph to make the thing break
-        # This is because unconnected nodes still in the graph increase
-        # the size of len(self.node_list), but are not appended to the stack.
-        # To fix this, base the while loop on the size of the stack.
-        # while len(previously_visited_nodes) < len(self.node_list):
+        # Base the while loop on the size of the stack:
         while len(stack_to_visit) > 0:
 
-
             current_node = stack_to_visit.pop()
-
-            ## DEBUGGING
-            print("\ncurrent_node neighbors:\n" + str(self.neighbors(current_node.value)))
-            list_of_values_in_stack_to_visit = [each.value for each in stack_to_visit]
-            print("\nstack_to_visit:\n" + str(list_of_values_in_stack_to_visit))
-            ## / DEBUGGING
-
-            # Must come before stack_to_visit.append(each_neighbor), below.
-            # Prevents duplication of the last Node in the list.
             previously_visited_nodes.append(current_node)
 
             for each_value in self.neighbors(current_node.value):
@@ -262,152 +243,185 @@ class TraversableGraph:
                 # for _neighbor_nodes() (that accepts a Node, perhaps).
                 each_neighbor = self._return_node_with_this_value(each_value)
 
+                # This wrecks the big O value, but I don't feel like i have
+                # enough time to improve it right now.
+                # Probably something involving dictionaries.
                 if each_neighbor not in previously_visited_nodes:
-                    stack_to_visit.append(each_neighbor)
+                    if each_neighbor not in nodes_already_added_to_stack:
+                        stack_to_visit.append(each_neighbor)
+                        nodes_already_added_to_stack.append(each_neighbor)
 
-            # Building the crossed_edges.
-            # If there's nothing in the list,
-            # no edge has yet been crossed.
-            if len(previously_visited_nodes) > 0:
-                highest_index = (len(previously_visited_nodes) - 1)
-                last_visited_node = previously_visited_nodes[highest_index]
-                # This is inefficient but economizes on writing new functions.
-                # If desired, can be fixed by renaming the method
-                # _return_edge_between_these_nodes() to
-                # _return_edge_between_the_nodes_with_these_values()
-                # and making a new method named
-                # _return_edge_between_these_nodes() that actually does
-                # what it's supposed to do in the name, now that we've
-                # ensured there's a meaningful difference.
-                # ...
-                # DUPLICATE EDGES NOTE!
-                # This will seem to make duplicate edges when
-                # the algorithm heads back to a previous branching point.
-                # This is because when the stack drops off a cliff,
-                # crossed_edge DOES NOT CHANGE from the value it was
-                # the previous pass.
-                # This CANNOT BE AVOIDED with this particular approach,
-                # you'd have to write a little check for if
-                # self._return_edge_between_these_nodes() does not return
-                # anything (it fails silently?) (it should return an
-                # exception on the line where it says
-                # "Internal structure error: failed Edge Node indexing")
-                # Fortunately the edges don't seem to matter. Currently.
-                # Or that seemed to be how it works. I don't really know yet...
-                crossed_edge = self._return_edge_between_these_nodes(
-                    current_node.value,
-                    last_visited_node.value)
-                crossed_edges.append(crossed_edge)
-
-            ## DEBUGGING
-            previous_values.append(current_node.value)
-            ## / DEBUGGING
-
-
-
-
-        # It always duplicates the final step once and it's getting too
-        # late for me to figure out why.
-        previously_visited_nodes.pop()
-        crossed_edges.pop()
-
-
-
-        # Presumably this maintains sorting order...
-        # ... I decided to demonstrate this by creating a parallel list
-        # full of the Edges that have been visited as well, in order.
         previously_visited_node_values \
             = [each_node.value for each_node in previously_visited_nodes]
 
-
-        previously_visited_edge_values \
-            = [(each_edge.alpha_node.value, each_edge.beta_node.value)
-               for each_edge in crossed_edges]
-
-
-
-        return previously_visited_node_values, previously_visited_edge_values
-
-
-
-    # circular_graph = traversable_graph.TraversableGraph()
-    # for each_integer in range(0, 10):
-    #     circular_graph.add_node(each_integer)
-    # # range(0, 10) gives 0 though 9 and len(that) gives 10
-    # for each_index in range(1, len(circular_graph.node_list)):
-    #     circular_graph.add_edge((each_index - 1), each_index)
-    # # Tie the graph chain together at the ends:
-    # circular_graph.add_edge(0, (len(circular_graph.node_list)-1))  # should be .value
-
-
-    # circular_graph.add_node("alpha")
-    # circular_graph.add_node("omega")
-    # circular_graph.add_edge("alpha", 4)
-    # circular_graph.add_edge("omega", "alpha")
-
-    # circular_graph.add_node("hello")
-    # circular_graph.add_node("kitty")
-    # circular_graph.add_node("aren't")
-    # circular_graph.add_node("you")
-    # circular_graph.add_node("adorable")
-    # circular_graph.add_edge("hello", "alpha")
-    # circular_graph.add_edge("kitty", "adorable")
-    # circular_graph.add_edge("aren't", 6)
-    # circular_graph.add_edge("you", "alpha")
-    # circular_graph.add_edge("adorable", "you")
-    # #import pdb
-    # #pdb.set_trace()
-    # circular_graph.depth_first_traversal("alpha")
-
-    # Example results:
-    # ['alpha',
-    #   'you',
-    #   'adorable', <-- step before it; see the edge prints pattern of each thing always being first in at least one edge, except on the jumped one, which is duplicated second (first=left, second=right)
-    #   'kitty', <--jump
-    #   'hello', <--land
-    #   'omega',
-    #   4,
-    #   5,
-    #   6,
-    #   "aren't",
-    #   7,
-    #   8,
-    #   9,
-    #   0,
-    #   1, <--jump??
-    #   2, <--land??
-    #   3]
-
-    # g.breadth_first_traversal(start):
-    #     Perform a full breadth-first traversal of the graph, beginning at start.
-    #     Return the full visited path when traversal is complete.
+        return previously_visited_node_values
 
     def breadth_first_traversal(self, start):
+        ''' Perform a full breadth-first traversal of the graph, beginning
+        at start. Return the full visited path when traversal is complete. '''
+
+        # A breadth-first traversal algorithm is the same thing as
+        # a depth-first traversal algorithm, except it uses a queue
+        # instead of a stack.
+
+        # Well-informed (possibly to the point of nearly copying) by:
+        # http://eddmann.com/posts/
+        #    depth-first-search-and-breadth-first-search-in-python/
+
+        # Seed the queue with where ever we're starting.
+        queue_to_visit = Queue()
+        queue_to_visit.put(self._return_node_with_this_value(start))
+        # The visited nodes list will serve as a record of our path.
+        previously_visited_nodes = []
+        nodes_already_added_to_queue = []
+
+        # Base the while loop on the size of the queue:
+        while queue_to_visit.qsize() > 0:
+
+            current_node = queue_to_visit.get()
+            previously_visited_nodes.append(current_node)
+
+            for each_value in self.neighbors(current_node.value):
+                # This is inefficient but economizes on writing new functions.
+                # If desired, can be fixed by implementing an internal call
+                # for _neighbor_nodes() (that accepts a Node, perhaps).
+                each_neighbor = self._return_node_with_this_value(each_value)
+
+                # This wrecks the big O value, but I don't feel like i have
+                # enough time to improve it right now.
+                # Probably something involving dictionaries.
+                if each_neighbor not in previously_visited_nodes:
+                    if each_neighbor not in nodes_already_added_to_queue:
+                        queue_to_visit.put(each_neighbor)
+                        # Queue.Queue does not have a simply way to surveil its
+                        # own contents, so we build a list to keep track of
+                        # what we've added to it to prevent certain situations
+                        # involving multiple neighbors:
+                        nodes_already_added_to_queue.append(each_neighbor)
+
+        previously_visited_node_values \
+            = [each_node.value for each_node in previously_visited_nodes]
+
+        return previously_visited_node_values
+
+if __name__ == '__main__':
+    # "In addition, write some demonstration code in
+    # an "if __name__ == '__main__':" block at the end of your file
+    # that shows how the two methods of traversal compare to each other
+    # when performed on the same graph.
+    # See if you can demonstrate the performance characteristics
+    # of the two methods over a variety of graph orders."
+
+    somewhat_complicated_graph = TraversableGraph()
+
+    for each_integer in range(0, 10):
+        somewhat_complicated_graph.add_node(each_integer)
+
+    # range(0, 10) gives 0 though 9 and len(that) gives 10
+    for each_index in range(1, len(somewhat_complicated_graph.node_list)):
+        somewhat_complicated_graph.add_edge((each_index - 1), each_index)
+
+    # Tie the graph chain together at the ends, making a circle:
+    somewhat_complicated_graph.add_edge(0, (len(somewhat_complicated_graph
+                                                .node_list) - 1))
+
+    # Connect to circle:
+    somewhat_complicated_graph.add_edge("alpha", 4)
+    somewhat_complicated_graph.add_node("alpha")
+
+    # Side branch:
+    somewhat_complicated_graph.add_node("omega")
+    somewhat_complicated_graph.add_edge("omega", "alpha")
+
+    # Deep branch:
+    somewhat_complicated_graph.add_node("beta")
+    somewhat_complicated_graph.add_node("gamma")
+    somewhat_complicated_graph.add_node("delta")
+    somewhat_complicated_graph.add_node("eta")
+    somewhat_complicated_graph.add_node("theta")
+
+    somewhat_complicated_graph.add_edge("alpha", "beta")
+    somewhat_complicated_graph.add_edge("beta", "gamma")
+    somewhat_complicated_graph.add_edge("gamma", "delta")
+    somewhat_complicated_graph.add_edge("delta", "eta")
+
+    # Extra side branch:
+    somewhat_complicated_graph.add_edge("gamma", "theta")
+
+    # Tie-backs:
+    somewhat_complicated_graph.add_edge("gamma", 8)
+    somewhat_complicated_graph.add_edge("theta", 8)
+
+    # Minibranch:
+    somewhat_complicated_graph.add_node("omicron")
+    somewhat_complicated_graph.add_edge("omicron", 6)
+
+    # Separated from the graph:
+    somewhat_complicated_graph.add_node("upsilon")
+    somewhat_complicated_graph.add_node("xi")
+    somewhat_complicated_graph.add_edge("xi", "upsilon")
+
+    print("\nDepth-first traversal:\n    ")
+    print(somewhat_complicated_graph.depth_first_traversal("alpha"))
+
+    print("\nBreadth-first traversal:\n    ")
+    print(somewhat_complicated_graph.breadth_first_traversal("alpha"))
+
+    check_if_random_is_okay = raw_input(
+        "\n\nThe following code will generate numerous random graphs with"
+        " unpredictable\ntopologies and print the results of calling both"
+        " path functions to the console."
+        "\n\nThis can be fairly spammy. If this is not desired, interrupt"
+        " the program with\ncontrol-c. Otherwise, press enter to continue . . .\n> ")
+
+    # Mad science
+    import random
+
+    print("\n\n. . . Beginning random graph generation . . .\n")
+
+    # Performance differences can be demonstrated by reducing the top
+    # end of each_pass's range to 1, increasing the top and bottom of
+    # random_node_count's range to >10000, and running the program
+    # a few times to test different Graph types.
+    for each_pass in range(0, 1000):
+
+        random_graph = TraversableGraph()
+        random_node_count = random.randint(10, 100)
+        # -1 to allow for single-node graphs
+        random_edge_count = random.randint(((random_node_count // 2) - 1),
+                                           (random_node_count - 1))
+
+        for each_node_count in range(0, random_node_count):
+            random_graph.add_node(each_node_count)
+
+        for each_edge_count in range(0, random_edge_count):
+            # This graph is by no means guaranteed to be fully connected.
+            two_random_nodes = random.sample(random_graph.node_list, 2)
+            # Note to self: add_edge() is supposed to take values, not Nodes.
+            random_graph.add_edge(two_random_nodes[0].value,
+                                  two_random_nodes[1].value)
+
+        random_edge = random.sample(random_graph.edge_list, 1)[0]
+        random_connected_node = random_edge.alpha_node
+
+        print "\n. Random Graph #{} .".format(each_pass)
+
+        print "Depth-first traversal:\n    "
+        print random_graph.depth_first_traversal(random_connected_node.value)
+
+        print "\nBreadth-first traversal:\n    "
+        print random_graph.breadth_first_traversal(random_connected_node.value)
+
+    somewhat_complicated_graph = TraversableGraph()
+
+    for each_integer in range(0, 10):
+        somewhat_complicated_graph.add_node(each_integer)
+
+    # range(0, 10) gives 0 though 9 and len(that) gives 10
+    for each_index in range(1, len(somewhat_complicated_graph.node_list)):
+        somewhat_complicated_graph.add_edge((each_index - 1), each_index)
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# In addition, write some demonstration code in
-# an "if __name__ == '__main__':" block at the end of your file
-# that shows how the two methods of traversal compare to each other
-# when performed on the same graph.
-# See if you can demonstrate the performance characteristics
-# of the two methods over a variety of graph orders.
