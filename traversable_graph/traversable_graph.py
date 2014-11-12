@@ -370,9 +370,9 @@ if __name__ == '__main__':
     check_if_random_is_okay = raw_input(
         "\n\nThe following code will generate numerous random graphs with"
         " unpredictable\ntopologies and print the results of calling both"
-        " path functions on them to the console."
+        " path functions to the console."
         "\n\nThis can be fairly spammy. If this is not desired, interrupt"
-        " the program\nwith control-c. Otherwise, press enter to continue . . .\n> ")
+        " the program with\ncontrol-c. Otherwise, press enter to continue . . .\n> ")
 
     # Mad science
     import random
