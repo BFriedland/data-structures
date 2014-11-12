@@ -1,0 +1,6 @@
+language: python
+python:
+  - "2.7"
+# Command to run tests:
+script:
+  - python test_traversable_graph.py
