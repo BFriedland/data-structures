@@ -14,6 +14,38 @@ Simple graphs behave as the computer science notion of a graph, containing
     rather than interacting with the abstraction (this was an issue of some
     concern in the specifications).
 
+Traversable graphs are simple graphs with the additional functionality
+    of being "traversable" by depth- and breadth-first search algorithms.
+    These algorithms will return the full list of nodes connected to the
+    node with the given value by any unbroken chain of edges; this is
+    analogous to printing every node of the graph in a list. These functions
+    may be modified to perform other duties as they go, if modified.
+
+hash_table.py will allow the construction of hash tables of user-defined
+    sizes that allow only strings for keys.
+
+    The hashing algorithm used combines bit rotation and XOR hashing, and
+        was researched from:
+        http://www.eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
+
+    HashTables will accept any positive integer table size; to optimize
+        for performance, the user is expected to determine their own ideal
+        hash table size, which is likely to be around 1.6 times the size of
+        the anticipated inputs, according to people with evaluation criteria
+        I have not yet had time to research.
+
+    HashTable objects may be instantiated by calling:
+        HashTable(size)
+
+    HashTable methods include:
+        get(key)
+            Retrieve from the hash table the value associated with
+            the given key string.
+        set(key, value)
+            Set the value for key in the HashTable to refer to value.
+        hash(key)
+            Return the hash of a given key string.
+
 Dependencies include Python 2.7
 
 Collaborators:
@@ -60,3 +92,11 @@ Resources used include:https://github.com/BFriedland/data-structures/pull/8
     bst:
         https://github.com/jbbrokaw/data-structures/blob/master/bst.py
         https://github.com/caseymacphee/Data-structures/blob/master/test_bst.py
+
+    hash_table:
+        http://www.eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
+        https://github.com/jbbrokaw/data-structures/blob/master/test_hashtable.py
+
+    traversable_graph:
+        http://eddmann.com/
+            posts/depth-first-search-and-breadth-first-search-in-python/
