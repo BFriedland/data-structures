@@ -21,6 +21,10 @@ Traversable graphs are simple graphs with the additional functionality
     analogous to printing every node of the graph in a list. These functions
     may be modified to perform other duties as they go, if modified.
 
+Weighted graphs are just like traversable graphs, but they have a weighting,
+    which is largely useless unless some extra functionality is added.
+    Necessary for implementing Djikstra's shortest-path algorithm.
+
 hash_table.py will allow the construction of hash tables of user-defined
     sizes that allow only strings for keys.
 
@@ -100,3 +104,6 @@ Resources used include:https://github.com/BFriedland/data-structures/pull/8
     traversable_graph:
         http://eddmann.com/
             posts/depth-first-search-and-breadth-first-search-in-python/
+
+    weighted_graph:
+        Own memory
