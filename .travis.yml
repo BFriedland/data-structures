@@ -3,6 +3,14 @@ python:
   - "2.7"
 # Command to run tests:
 script:
+  - python linked_list/test_linked_list.py
+  - python stack/test_stack.py
+  - python queue/test_queue.py
+  - python dll/test_doubly_linked_list.py
+  - python binheap/test_binary_heap.py
+  - python priority_queue/test_priority_queue.py
   - python test_bst.py
+  - python simple_graph/test_simple_graph.py
+  - python traversable_graph/test_traversable_graph.py
+  - python weighted_graph/test_weighted_graph.py
   - python test_hash_table.py
-
