@@ -52,7 +52,7 @@ hash_table.py will allow the construction of hash tables of user-defined
         hash(key)
             Return the hash of a given key string.
 
-Inserton sort is a simple sorting algorithm. It has somewhat poor performance,
+Insertion sort is a simple sorting algorithm. It has somewhat poor performance,
     but it's very easy to implement. It will run in O(n) time in the best
     case and O(n^2) time in the worst case.
 
