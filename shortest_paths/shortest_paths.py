@@ -477,8 +477,12 @@ for each_integer in range(0, 10):
     somewhat_complicated_graph.add_node(each_integer)
 
 # range(0, 10) gives 0 though 9 and len(that) gives 10
+# for each_index in range(1, len(somewhat_complicated_graph.node_list)):
+#     somewhat_complicated_graph.add_weighted_edge((each_index - 1), each_index, (each_index * 2))
+
 for each_index in range(1, len(somewhat_complicated_graph.node_list)):
-    somewhat_complicated_graph.add_weighted_edge((each_index - 1), each_index, (each_index * 2))
+    somewhat_complicated_graph.add_weighted_edge((each_index - 1), each_index, 1)
+
 
 # Tie the graph chain together at the ends, making a circle:
 somewhat_complicated_graph.add_weighted_edge(0, (len(somewhat_complicated_graph
