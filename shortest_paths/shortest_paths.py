@@ -560,11 +560,121 @@ class ShortestPathsGraph:
 
 
 
+
+
+    def dijkstra_two(self, start, end):
+
+
+
+        # The trivial case.
+        if start == end:
+            return [start]
+
+        try:
+            starting_node = self._return_node_with_this_value(start)
+            ending_node = self._return_node_with_this_value(end)
+        except:
+            raise ValueError("Cannot path between {} and {}:"
+                             " no such Node(s)".format(start, end))
+
+
+        distances_from_the_start = {}
+
+        priority_queue_to_visit = PriorityQueue()
+
+        # I made the mistake of making these identical on one of my tries...
+        dict_of_which_nodes_were_visited_before_which = {}
+        already_pathed_nodes_list = []
+
+        dict_of_which_nodes_were_visited_before_which[starting_node] = None
+
+        # Put the starting node in the graph as the node with the lowest
+        # distance away from the starting node.
+        priority_queue_to_visit.put((0, starting_node))
+
+        distances_from_the_start[starting_node] = 0
+
+        # When nothing has been added to the priority queue in a given pass
+        # and everything added before has been removed, there is nothing
+        # left to check.
+        while priority_queue_to_visit.qsize() > 0:
+
+            # Take the node out of the graph with the lowest distance
+            # away from the starting node.
+            current_node = priority_queue_to_visit.get()[1]
+
+            # Make sure you only do this for nodes that have been
+            # the current_node!
+            already_pathed_nodes_list.append(current_node)
+
+            for each_edge in current_node.edges_for_this_node:
+
+                # Pseudonym
+                the_other_node = other_node(current_node, each_edge)
+
+                if the_other_node in already_pathed_nodes_list:
+                    # I'm so glad I learned about continue.
+                    continue
+
+                distance_for_traveling_to_this_other_node_from_current_node = distances_from_the_start[current_node] + each_edge.weighting
+
+
+
+                if the_other_node in distances_from_the_start:
+
+                    if distances_from_the_start[the_other_node] > distance_for_traveling_to_this_other_node_from_current_node:
+                        distances_from_the_start[the_other_node] = distance_for_traveling_to_this_other_node_from_current_node
+                        dict_of_which_nodes_were_visited_before_which[the_other_node] = current_node
+                        priority_queue_to_visit.put((distances_from_the_start[the_other_node], the_other_node))
+                else:
+                    distances_from_the_start[the_other_node] = distance_for_traveling_to_this_other_node_from_current_node
+                    dict_of_which_nodes_were_visited_before_which[the_other_node] = current_node
+                    priority_queue_to_visit.put((distances_from_the_start[the_other_node], the_other_node))
+
+
+        if ending_node not in distances_from_the_start:
+            print "End node unreachable from start node."
+            return
+
+
+        # This next while loop creeps back through the dict of which nodes
+        # were visited before each other and builds the shortest path.
+        the_node_to_look_at_now = ending_node
+        ordered_path_list = []
+
+        while the_node_to_look_at_now is not None:
+
+            ordered_path_list.insert(0, the_node_to_look_at_now.value)
+
+            the_node_to_look_at_now = dict_of_which_nodes_were_visited_before_which[the_node_to_look_at_now]
+
+        print "Distance: " + str(distances_from_the_start[ending_node]) + "\n" + str(ordered_path_list)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def other_node(this_node, the_edge):
     if the_edge.alpha_node == this_node:
         return the_edge.beta_node
     else:
         return the_edge.alpha_node
+
+
+
+
 
 
 
@@ -590,8 +700,9 @@ for each_index in range(1, len(somewhat_complicated_graph.node_list)):
 somewhat_complicated_graph.add_weighted_edge(0, (len(somewhat_complicated_graph
                                              .node_list) - 1), 20)
 
-somewhat_complicated_graph.dijkstra_algorithm(0, 5)
-
+print("\nfrom 0 to 5:")
+#somewhat_complicated_graph.dijkstra_algorithm(0, 5)
+somewhat_complicated_graph.dijkstra_two(0, 5)
 
 print("\nfrom alpha to delta:")
 
@@ -599,15 +710,19 @@ print("\nfrom alpha to delta:")
 simple_graph = ShortestPathsGraph()
 
 simple_graph.add_weighted_edge("alpha", "beta", 1)
-simple_graph.add_weighted_edge("beta", "gamma", 1)
+# Testing decision making capability of this algorithm can be as easy
+# as flipping this particular number from huge to small:
+simple_graph.add_weighted_edge("beta", "gamma", 199999999999)
 simple_graph.add_weighted_edge("gamma", "delta", 1)
-simple_graph.add_weighted_edge("hoopa", "gamma", 624)
+simple_graph.add_weighted_edge("hoopa", "gamma", 84)
 
-simple_graph.add_weighted_edge("hoopa", "doopa", 645552)
+simple_graph.add_weighted_edge("hoopa", "doopa", 646552)
+simple_graph.add_weighted_edge("doopa", "loopa", 534)
+# Or simply commenting this connection:
+simple_graph.add_weighted_edge("alpha", "loopa", 1)
 
-simple_graph.add_weighted_edge("doopa", "delta", 1111)
-
-simple_graph.dijkstra_algorithm("alpha", "delta")
+#simple_graph.dijkstra_algorithm("alpha", "delta")
+simple_graph.dijkstra_two("alpha", "delta")
 
 
 
@@ -631,6 +746,11 @@ simple_graph.dijkstra_algorithm("alpha", "delta")
 #             square_graph.add_weighted_edge(each_x, each_y + 1, abs(each_x - each_y))
 
 # square_graph.dijkstra_algorithm(0, 4)
+
+
+
+
+
 
 
 
