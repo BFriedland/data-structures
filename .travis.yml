@@ -13,5 +13,7 @@ script:
   - python simple_graph/test_simple_graph.py
   - python traversable_graph/test_traversable_graph.py
   - python weighted_graph/test_weighted_graph.py
+  - python shortest_paths/test_shortest_paths.py
   - python test_hash_table.py
   - python insertion_sort/test_insertion_sort.py
+  - python merge_sort/test_merge_sort.py
