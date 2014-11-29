@@ -8,8 +8,9 @@ Sample code for classic data structures and sorting algorithms
 
 Includes implementations of linked list, queue, doubly-linked list,
     stack, binary heap, priority queue, binary search tree, a simple graph
-    structure with depth- and breadth-first traversal demonstrations, and
-    an implementation of the insertion sort algorithm.
+    structure with depth- and breadth-first traversal demonstrations, the
+    A* and Dijkstra's shortest path algorithms, and implementations of the
+    insertion sort, merge sort, and quicksort algorithms.
 
 Simple graphs behave as the computer science notion of a graph, containing
     vertices (Nodes) and Edges. The user interacts with the graph by value
@@ -97,6 +98,19 @@ Insertion sort is a simple sorting algorithm. It has somewhat poor performance,
     but it's very easy to implement. It will run in O(n) time in the best
     case and O(n^2) time in the worst case.
 
+Merge sort is a fairly simple sorting algorithm. It has very predictable
+    performance with a big O of n log(n) in every case.
+    It will recursively divide the list until only single elements remain
+    (which are trivially sorted), and then it will zip them back up using
+    first-element comparisons to sort the list as it merges.
+
+Quicksort is similar to merge sort in that it's a "divide and conquer"
+    algorithm, dividing a list into pieces and re-merging them in sorted
+    order. Its main difference is that it sorts during the process of
+    division, ordering elements by comparison with "pivot" value selected
+    from the list each pass, then recursing on the pair of lesser- and
+    greater-valued lists.
+
 Dependencies include Python 2.7
 
 Collaborators:
@@ -165,3 +179,14 @@ Resources used include:
     insertion_sort:
         http://en.wikipedia.org/wiki/Insertion_sort
         http://www.geekviewpoint.com/python/sorting/insertionsort
+
+    merge_sort:
+        http://en.wikipedia.org/wiki/Merge_sort
+
+    quicksort:
+        http://en.wikipedia.org/wiki/Quicksort
+        http://en.literateprograms.org/Quicksort_%28Python%29
+
+
+
+
