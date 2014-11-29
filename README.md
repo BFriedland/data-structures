@@ -112,7 +112,7 @@ Unit tests were usefully informed by:
 
     https://github.com/charlieRode/data-structures/blob/bst/test_bst.py
 
-Resources used include:https://github.com/BFriedland/data-structures/pull/8
+Resources used include:
 
     linked_list:
         http://en.literateprograms.org/Singly_linked_list_%28Python%29
