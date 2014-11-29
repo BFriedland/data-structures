@@ -8,8 +8,9 @@ Sample code for classic data structures and sorting algorithms
 
 Includes implementations of linked list, queue, doubly-linked list,
     stack, binary heap, priority queue, binary search tree, a simple graph
-    structure with depth- and breadth-first traversal demonstrations, and
-    an implementation of the insertion sort algorithm.
+    structure with depth- and breadth-first traversal demonstrations, the
+    A* and Dijkstra's shortest path algorithms, and implementations of the
+    insertion sort and merge sort algorithms.
 
 Simple graphs behave as the computer science notion of a graph, containing
     vertices (Nodes) and Edges. The user interacts with the graph by value
