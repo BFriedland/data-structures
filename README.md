@@ -3,11 +3,13 @@ data-structures
 
 [![Build Status](https://travis-ci.org/BFriedland/data-structures.svg)](https://travis-ci.org/BFriedland/data-structures)
 
-Sample code for classic data structures implemented in Python.
+Sample code for classic data structures and sorting algorithms
+    implemented in Python by Ben Friedland.
 
 Includes implementations of linked list, queue, doubly-linked list,
-    stack, binary heap, priority queue, binary search tree, and
-    a simple graph structure.
+    stack, binary heap, priority queue, binary search tree, a simple graph
+    structure with depth- and breadth-first traversal demonstrations, and
+    an implementation of the insertion sort algorithm.
 
 Simple graphs behave as the computer science notion of a graph, containing
     vertices (Nodes) and Edges. The user interacts with the graph by value
@@ -91,6 +93,10 @@ hash_table.py will allow the construction of hash tables of user-defined
         hash(key)
             Return the hash of a given key string.
 
+Insertion sort is a simple sorting algorithm. It has somewhat poor performance,
+    but it's very easy to implement. It will run in O(n) time in the best
+    case and O(n^2) time in the worst case.
+
 Dependencies include Python 2.7
 
 Collaborators:
@@ -155,3 +161,7 @@ Resources used include:
         http://code.activestate.com/
             recipes/577519-a-star-shortest-path-algorithm/
         http://en.wikipedia.org/wiki/A*_search_algorithm
+
+    insertion_sort:
+        http://en.wikipedia.org/wiki/Insertion_sort
+        http://www.geekviewpoint.com/python/sorting/insertionsort
