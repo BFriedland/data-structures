@@ -97,6 +97,12 @@ Insertion sort is a simple sorting algorithm. It has somewhat poor performance,
     but it's very easy to implement. It will run in O(n) time in the best
     case and O(n^2) time in the worst case.
 
+Merge sort is a fairly simple sorting algorithm. It has very predictable
+    performance with a big O of n log(n) in every case.
+    It will recursively divide the list until only single elements remain
+    (which are trivially sorted), and then it will zip them back up using
+    first-element comparisons to sort the list as it merges.
+
 Dependencies include Python 2.7
 
 Collaborators:
@@ -165,3 +171,7 @@ Resources used include:
     insertion_sort:
         http://en.wikipedia.org/wiki/Insertion_sort
         http://www.geekviewpoint.com/python/sorting/insertionsort
+
+    merge_sort:
+        http://en.wikipedia.org/wiki/Merge_sort
+
