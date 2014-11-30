@@ -7,10 +7,22 @@ Sample code for classic data structures and sorting algorithms
     implemented in Python by Ben Friedland.
 
 Includes implementations of linked list, queue, doubly-linked list,
-    stack, binary heap, priority queue, binary search tree, a simple graph
-    structure with depth- and breadth-first traversal demonstrations, the
-    A* and Dijkstra's shortest path algorithms, and implementations of the
-    insertion sort, merge sort, and quicksort algorithms.
+    stack, binary heap, priority queue, binary search tree, AVL-balanced
+    binary search tree, a simple graph structure with depth- and
+    breadth-first traversal demonstrations, the A* and Dijkstra's shortest
+    path algorithms, and implementations of the insertion sort, merge sort,
+    and quicksort algorithms.
+
+Binary search trees are a quick and efficient way to store and search through
+    data. Inserting a value into a binary search tree will cause it to store
+    the value as a node in the tree in a way that allows them to be looked
+    up through comparisons from the 'root' node to nodes with closer and
+    closer values via binary comparisons (greater-than versus lesser-than).
+
+    This comparison-indexed tree structure is very efficient to build and
+    search through given either sufficiently randomly distributed data values
+    or a balancing function, such as the balancing_tree's automatically-
+    invoked implementation of the AVL balancing algorithm.
 
 Simple graphs behave as the computer science notion of a graph, containing
     vertices (Nodes) and Edges. The user interacts with the graph by value
@@ -187,6 +199,8 @@ Resources used include:
         http://en.wikipedia.org/wiki/Quicksort
         http://en.literateprograms.org/Quicksort_%28Python%29
 
-
-
-
+    balancing_tree:
+        http://en.wikipedia.org/wiki/Binary_search_tree
+        http://en.wikipedia.org/wiki/AVL_tree
+        http://interactivepython.org/
+            courselib/static/pythonds/Trees/balanced.html
