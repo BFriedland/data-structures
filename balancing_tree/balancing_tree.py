@@ -35,7 +35,7 @@ class BalancingBinarySearchTree:
         # This is not related to the AVL tree's balance measures, but
         # it can serve as a mildly interesting way to keep track of the
         # performance balance of the tree balancing function by comparison.
-        self.balance_counter = 0
+        self.size_balance_counter = 0
 
     def correct_balance(self, this_node):
 
@@ -167,11 +167,6 @@ class BalancingBinarySearchTree:
             # First, swap the tree's root reference:
             self.root_node = new_root_node
 
-            # Second, increment the tree's balance_counter to account
-            # for the leftwards shift of a node. This only needs to be
-            # incremented by one.
-            self.balance_counter += 1
-
         # If the old_root_node was not the root of the tree, we can
         # now inform the parents of their horizontal transdoption:
         else:
@@ -218,6 +213,9 @@ class BalancingBinarySearchTree:
         # but only if it is a value below zero before absolute-valuification.
         # Figuring this step out had me boggled for a while and would
         # probably require some extra research to really memorize.
+        # A full algebraic derivation of this logic can be found at:
+        # http://interactivepython.org/
+        #     courselib/static/pythonds/Trees/balanced.html
         old_root_node.balance_offset -= min(new_root_node.balance_offset, 0)
 
         # Next is the corresponding procedure in the opposite direction
@@ -228,6 +226,84 @@ class BalancingBinarySearchTree:
         new_root_node.balance_offset += max(old_root_node.balance_offset, 0)
 
         # And we're done with left-rotating! Hooray!
+
+    def rotate_right(self, old_root_node):
+
+        # Once again, thanks to
+        # http://interactivepython.org/
+        #     courselib/static/pythonds/Trees/balanced.html
+        # for the excellent reference.
+
+        # Rotating right is just like rotating left, except in
+        # the opposite direction;
+        # i.e., it's the symmetrical counterpart to rotate_left().
+        # For this reason, I'll omit most of the comments I made in
+        # rotate_left() and instead point out the relevant differences.
+        # "Root" herein refers to the relative position of the root node
+        # of the subtree that is being rotated. It does NOT refer to the
+        # entire tree's root_node.
+
+        # Since we're rotating right, we'll need to use the old_root_node's
+        # left branch as the new_root_node.
+        new_root_node = old_root_node.left
+
+        old_root_node.left = new_root_node.right
+
+        if new_root_node.right is not None:
+            new_root_node.right.parent = old_root_node
+
+        # Note that the symmetric changes only apply to chiral distinctions.
+        new_root_node.parent = old_root_node.parent
+
+        if old_root_node.parent is None:
+
+            self.root_node = new_root_node
+
+        else:
+
+            if old_root_node.parent.right == old_root_node:
+
+                old_root_node.parent.right = new_root_node
+
+            else:
+
+                old_root_node.parent.left = new_root_node
+
+        new_root_node.right = old_root_node
+
+        old_root_node.parent = new_root_node
+
+        # This next part is critically distinct from
+        # its counterpart in left_rotation().
+
+        # Where left_rotation was always incrementing offsets, right_rotation
+        # will only ever be decrementing them.
+
+        # This means we must swap the 'crement operator's sign to negative:
+        old_root_node.balance_offset -= 1
+
+        # In rotate_left() it was necessary to decrement by the least of
+        # either a potentially negative number or zero -- an operation
+        # which only ever yielded a HIGHER value or kept the number the same.
+        # This is because subtracting by a negative number causes the resulting
+        # value to increase, where adding a negative number to something
+        # causes it to decrease. Third grade stuff, maybe, but all
+        # too easily mistaken if not laid out explicitly.
+        old_root_node.balance_offset -= max(new_root_node.balance_offset, 0)
+
+        new_root_node.balance_offset -= 1
+
+        # Here, instead of adding the greatest one of either a potentially
+        # positive number or zero (as in leftward rotation), we will be
+        # "adding" the least one of a potentially negative number or zero,
+        # (making the number either decrease in value or stay the same).
+        new_root_node.balance_offset += min(old_root_node.balance_offset, 0)
+
+        # Once again, a full derivation of left_rotate()'s version
+        # of the above balance_offset modification may be found at
+        # the same site I referenced while doing this assignment:
+        # http://interactivepython.org/
+        #     courselib/static/pythonds/Trees/balanced.html
 
     def insert(self, val):
         ''' Insert val into the binary search tree as a node, maintaining
@@ -247,7 +323,7 @@ class BalancingBinarySearchTree:
             self.root_node = Node(val)
             self.size_counter = 1
             # The center node has balance zero, by definition:
-            self.balance_counter = 0
+            self.size_balance_counter = 0
 
         else:
 
@@ -292,7 +368,7 @@ class BalancingBinarySearchTree:
                         # it cannot be determined from the mere fact we are
                         # placing a node which is on the left of *something*.
                         if which_side_are_we_placing_it_on == "Left":
-                            self.balance_counter += 1
+                            self.size_balance_counter += 1
 
                         # If a node was added here, check for
                         # and correct potential tree imbalances:
@@ -329,7 +405,7 @@ class BalancingBinarySearchTree:
                         # it cannot be determined from the mere fact we are
                         # placing a node which is on the right of *something*.
                         if which_side_are_we_placing_it_on == "Right":
-                            self.balance_counter -= 1
+                            self.size_balance_counter -= 1
 
                         # If a node was added here, check for
                         # and correct potential tree imbalances:
@@ -382,28 +458,25 @@ class BalancingBinarySearchTree:
                 # it must go somewhere on the left.
                 if current_node.value > val:
 
-                    if current_node.left:
+                    if current_node.left is not None:
 
-                        if val > current_node.left.value:
+                        current_node = current_node.left
 
-                            return False
-
-                        else:
-
-                            current_node = current_node.left
+                    # Since we start at the root, False is safe here.
+                    # In fact, it's required to prevent infinilooping.
+                    else:
+                        return False
 
                 # Then it must be somewhere on the right.
                 elif current_node.value < val:
 
-                    if current_node.right:
+                    if current_node.right is not None:
 
-                        if val < current_node.right.value:
+                        current_node = current_node.right
 
-                            return False
+                    else:
+                        return False
 
-                        else:
-
-                            current_node = current_node.right
 
                 elif (not current_node.left) and (not current_node.right):
 
@@ -421,10 +494,82 @@ class BalancingBinarySearchTree:
         return self._return_tree_max_depth()
 
     def balance(self):
-        return self.balance_counter
+        # Deprecated in favor of a recursive solution:
+        # return self.size_balance_counter
+        # Deprecated because size balance is unimportant for BSTs:
+        # return self._return_tree_size_balance(self.root_node)
+        # This returns the HEIGHT balance of the BST:
+        return self.root_node.balance_offset
+
+    def _return_tree_size_balance(self, current_node, is_first_pass=True):
+
+        # This returns SIZE imbalance for a node's subtrees.
+        # Size imbalances are totally unimportant for lookup times in
+        # a binary search tree, because comparisons only happen at
+        # branching points.
+        # So, this code is largely unimportant and is only a novelty now.
+
+        # Note that this function is recursive in three locations, but
+        # only ever calls recursion at most twice from each previous call.
+        # It makes zero recursive calls on nodes with no branches.
+
+        # The root_node has zero effect on balance, but every other node
+        # will change the balance counter by one each.
+        return_value = 0
+
+        # This is the result of my discovering AVL trees only balance
+        # subtrees by HEIGHT, not SIZE. The exception is only raised
+        # if AVL is not working properly -- the balance_offset tracks
+        # HEIGHT BALANCE of subtrees, not SIZE BALANCE, which is tracked
+        # by self._return_tree_size_balance(), which is totally unimportant
+        # for the purposes of speeding up information retrieval.
+        if current_node.balance_offset > 1:
+            raise Exception("  HEIGHT IMBALANCE! {}".format(
+                current_node.balance_offset))
+
+        if is_first_pass is False:
+            return_value += 1
+
+        if current_node.left:
+            return_value += self._return_tree_size_balance(
+                current_node.left, is_first_pass=False)
+
+            # Leaving in the following few lines for future reference:
+            # if is_first_pass == True:
+            #     leftside = self._return_tree_size_balance(
+            #         current_node.left, is_first_pass=False)
+
+            #     print("Leftside: {}".format(leftside))
+            #     print("Leftside in-order print:")
+            #     self.in_order_print(current_node.left)
+
+        # Only the top of the recursion tree should flip the sign of the
+        # size of the right portion of the tree (to negative).
+        if is_first_pass is True:
+            if current_node.right:
+
+                return_value -= self._return_tree_size_balance(
+                    current_node.right, is_first_pass=False)
+
+                # Leaving in the following few lines for future reference:
+                # rightside = self._return_tree_size_balance(
+                #     current_node.right, is_first_pass=False)
+                # print("Rightside: -{}".format(rightside))
+                # print("Rightside in-order print:")
+                # self.in_order_print(current_node.right)
+
+        elif is_first_pass is False:
+            if current_node.right:
+                return_value += self._return_tree_size_balance(
+                    current_node.right, is_first_pass=False)
+
+        return return_value
 
     def delete(self, val, current_node=None):
 
+        # This function handles both delete-by-object and delete-by-value.
+        # Note that a Node containing another Node will fail this check,
+        # but then, that shouldn't ever happen. Caveat... usor?
         if isinstance(current_node, Node):
             the_node_to_delete = current_node
         else:
@@ -446,28 +591,37 @@ class BalancingBinarySearchTree:
                 # Then it's the root node.
                 # Still needs to be fully considered for deletion,
                 # so we can't end the function when we know this.
-                self.balance_counter += 0  # Syntactic consistency
+                self.size_balance_counter += 0  # Syntactic consistency
             elif the_node_to_delete.value > self.root_node.value:
                 # Righter trees are more negative,
                 # lefter trees are more positive.
-                self.balance_counter += 1
+                self.size_balance_counter += 1
             elif the_node_to_delete.value < self.root_node.value:
-                self.balance_counter -= 1
+                self.size_balance_counter -= 1
 
             # If the node is a "leaf" (ie, it has no descendants),
             # delete it outright.
             if ((the_node_to_delete.left is None)
                and (the_node_to_delete.right is None)):
 
-                if the_node_to_delete.parent.right == the_node_to_delete:
-                    the_node_to_delete.parent.right = None
+                # The root_node case:
+                if the_node_to_delete.parent is not None:
 
-                if the_node_to_delete.parent.left == the_node_to_delete:
-                    the_node_to_delete.parent.left = None
+                    if the_node_to_delete.parent.right == the_node_to_delete:
+                        the_node_to_delete.parent.right = None
+
+                    if the_node_to_delete.parent.left == the_node_to_delete:
+                        the_node_to_delete.parent.left = None
+
+                else:
+                    # Inform the tree it has no root_node anymore.
+                    self.root_node = None
 
                 # Do we even need to do this if we remove the references?
                 # Yes, since extra-arboreal objects might still contain
                 # references to this node.
+                # AVL trees do not need to rebalance for
+                # height when a leaf has been deleted.
                 del the_node_to_delete
                 return None
 
@@ -477,16 +631,36 @@ class BalancingBinarySearchTree:
             elif ((the_node_to_delete.right is not None)
                   and (the_node_to_delete.left is None)):
 
-                the_node_to_delete.parent.right = the_node_to_delete.right
-                the_node_to_delete.right.parent = the_node_to_delete.parent
+                if the_node_to_delete.parent is not None:
+
+                    the_node_to_delete.parent.right = the_node_to_delete.right
+                    the_node_to_delete.right.parent = the_node_to_delete.parent
+
+                    # AVL-balanced trees must rebalance at every node deletion:
+                    self.correct_balance(the_node_to_delete.parent)
+
+                else:
+                    # Inform the tree the root_node has changed:
+                    self.root_node = the_node_to_delete.right
+                    self.correct_balance(self.root_node)
 
                 del the_node_to_delete
 
             elif ((the_node_to_delete.right is None)
                   and (the_node_to_delete.left is not None)):
 
-                the_node_to_delete.parent.left = the_node_to_delete.left
-                the_node_to_delete.left.parent = the_node_to_delete.parent
+                if the_node_to_delete.parent is not None:
+
+                    the_node_to_delete.parent.left = the_node_to_delete.left
+                    the_node_to_delete.left.parent = the_node_to_delete.parent
+
+                    # AVL-balanced trees must rebalance at every node deletion:
+                    self.correct_balance(the_node_to_delete.parent)
+
+                else:
+                    # Inform the tree the root_node has changed:
+                    self.root_node = the_node_to_delete.left
+                    self.correct_balance(self.root_node)
 
                 del the_node_to_delete
 
@@ -504,34 +678,38 @@ class BalancingBinarySearchTree:
                 def _find_furthest_subtree_size_and_node(
                         each_node, which_way_at_top, current_depth=1):
 
-                    if each_node is None:
-                        return current_depth, each_node.parent
-                    else:
-                        current_depth += 1
-                        # Which way at top is opposite the way
-                        # we're looking down the subtree.
-                        if which_way_at_top == "Left":
+                    current_depth += 1
+                    # Which way at top is opposite the way
+                    # we're looking down the subtree.
+                    if which_way_at_top == "Left":
+                        if each_node.right is not None:
                             return _find_furthest_subtree_size_and_node(
                                 each_node.right, "Left", current_depth)
                         else:
+                            return current_depth, each_node
+                    else:
+                        if each_node.left is not None:
                             return _find_furthest_subtree_size_and_node(
                                 each_node.left, "Right", current_depth)
+                        else:
+                            return current_depth, each_node
 
                 left_subtree_size, rightest_left_subtree_node \
                     = _find_furthest_subtree_size_and_node(
-                        self.the_node_to_delete.left, "Left")
-                right_subtree_size, leftest_right_subtreenode \
+                        the_node_to_delete.left, "Left")
+                right_subtree_size, leftest_right_subtree_node \
                     = _find_furthest_subtree_size_and_node(
-                        self.the_node_to_delete.right, "Right")
+                        the_node_to_delete.right, "Right")
 
-                # Hackishly force one to be bigger if they're equal.
-                # Makes it balance closer to the root.
-                if left_subtree_size == right_subtree_size:
-                    # Add it to the right subtree
-                    # because negative balance is righter.
-                    right_subtree_size += (self.balance / abs(self.balance))
+                # # Hackishly force one to be bigger if they're equal.
+                # # Makes it balance by height, since it's an AVL tree.
+                # if left_subtree_size == right_subtree_size:
+                #     # Add it to the right subtree
+                #     # because negative balance is righter.
+                #     right_subtree_size += (self.root_node.balance_offset /
+                #                            abs(self.root_node.balance_offset))
 
-                if left_subtree_size > right_subtree_size:
+                if left_subtree_size >= right_subtree_size:
                     # Then rebalance the tree using the left
                     # subtree as the new replacement node.
 
@@ -576,7 +754,7 @@ class BalancingBinarySearchTree:
         # Init it to zero, since we always start "above" the root node.
         def _recursive_depth_list_builder(root_of_current_comparison,
                                           depth_at_this_step=0):
-            if not root_of_current_comparison:
+            if root_of_current_comparison is None:
                 # This is a tree-level list so that
                 # many recursive branches can all add to it.
                 # I'm virtually certain this is not ideal,
@@ -607,31 +785,76 @@ class BalancingBinarySearchTree:
     #    implementing-binary-search-tree-in-python
 
     # Is a public function, so no underscore.
-    def in_order_print(self, root_of_current_comparison):
+    def in_order_print(self, root_of_current_comparison='self.root', returning=False):
         ''' Print the entire tree in ascending order of value.
         This function is always called with a Node from the tree
         it's called on. To print the whole tree, call:
-        self.in_order_print(self.root_node) '''
+        self.in_order_print(self.root_node)
+        To return values in a list instead of printing them
+        individually, use the kwarg returning=True '''
+
+        if root_of_current_comparison == 'self.root_node':
+            root_of_current_comparison = self.root_node
+
         if not root_of_current_comparison:
-            return
-        self.in_order_print(root_of_current_comparison.left)
-        print(root_of_current_comparison.value)
-        self.in_order_print(root_of_current_comparison.right)
+            return []
+
+        return_list = []
+
+        return_list += self.in_order_print(root_of_current_comparison.left, returning=True)
+        return_list += [root_of_current_comparison.value]
+        return_list += self.in_order_print(root_of_current_comparison.right, returning=True)
+
+        if returning is True:
+            return return_list
+
+        if returning is False:
+            print return_list
 
 
 if __name__ == "__main__":
 
     balancing_tree = BalancingBinarySearchTree()
-    print("Worst case scenario to find 9 is as long as a linked list, or O(n):")
+
+    print("The worst case scenario to find 9 in an unbalanced tree\n"
+          "would be as long as a linked list, or O(n).\n\nHowever, for "
+          "an AVL tree, it is merely O(log n), because\nthe tree balances "
+          "by height as necessary at every insertion.\nThe depth of this "
+          "worst-case tree is therefore only four when\nit could have "
+          "been nine, and its height balance offset is,\ncorrectly, "
+          "fewer than two points from zero:")
+
     for each in range(1, 10):
         balancing_tree.insert(each)
     balancing_tree.in_order_print(balancing_tree.root_node)
-    print("Size: %r\nDepth: %r\nBalance:%r\n" % (balancing_tree.size(), balancing_tree.depth(), balancing_tree.balance()))
+    print("Size: %r\nDepth: %r\nBalance:%r\n" % (balancing_tree.size(),
+                                                 balancing_tree.depth(),
+                                                 balancing_tree.balance()))
 
     balancing_tree = BalancingBinarySearchTree()
-    print("Best case scenario to find 9 is constant time, when it's placed at the top:")
+    print("Best case scenario to find 9 is constant time:")
     balancing_tree.insert(9)
     balancing_tree.in_order_print(balancing_tree.root_node)
-    print("Size: %r\nDepth: %r\nBalance:%r\n" % (balancing_tree.size(), balancing_tree.depth(), balancing_tree.balance()))
+    print("Size: %r\nDepth: %r\nBalance:%r\n" % (balancing_tree.size(),
+                                                 balancing_tree.depth(),
+                                                 balancing_tree.balance()))
 
-    print("The average case is O(log n).\n")
+    print("Due to unremitting balancing at every insertion, the average\n"
+          "case lookup operation on *all* AVL-sorted BSTs is O(log n).\n")
+
+    proceed = raw_input("The algorithm will next print the contents and\n"
+                        "metrics of one hundred randomly generated trees.\n"
+                        "If this is not desired, press control-c.\n> ")
+
+    import random
+
+    print("\n================= Begin random tree examples =================\n")
+
+    for each_pass in range(0, 100):
+        balancing_tree = BalancingBinarySearchTree()
+        for each in range(5, random.randint(10, 100)):
+            balancing_tree.insert(random.randint(0, 100))
+        balancing_tree.in_order_print(balancing_tree.root_node)
+        print("Size: %r\nDepth: %r\nBalance:%r\n" % (balancing_tree.size(),
+                                                     balancing_tree.depth(),
+                                                     balancing_tree.balance()))
