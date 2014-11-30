@@ -5,25 +5,40 @@ import random
 
 class test_BalancingBinarySearchTree(unittest.TestCase):
 
+    def test_with_random_values(self):
+
+        for each_pass in range(0, 100):
+
+            random_tree = balancing_tree.BalancingBinarySearchTree()
+
+            for each_new_node in range(5, random.randint(10, 100)):
+                random_tree.insert(random.randint(0, 100))
+            sorted_tree_contents = random_tree.in_order_print(
+                random_tree.root_node, returning=True)
+
+            for each_node_index in range(0, (len(sorted_tree_contents) - 1)):
+                assert (sorted_tree_contents[each_node_index]
+                        <= sorted_tree_contents[(each_node_index + 1)])
+
     def setUp(self):
 
-        self.worst_balancing_tree = balancing_tree.BinarySearchTree()
+        self.worst_balancing_tree = balancing_tree.BalancingBinarySearchTree()
         for each_integer in range(0, 20):
             self.worst_balancing_tree.insert(each_integer)
 
-        self.empty_balancing_tree = balancing_tree.BinarySearchTree()
+        self.empty_balancing_tree = balancing_tree.BalancingBinarySearchTree()
 
         with self.assertRaises(TypeError):
-            balancing_tree.BinarySearchTree("Not valid")
+            balancing_tree.BalancingBinarySearchTree("Not valid")
 
         with self.assertRaises(TypeError):
-            balancing_tree.BinarySearchTree([55, 2, 1])
+            balancing_tree.BalancingBinarySearchTree([55, 2, 1])
 
         with self.assertRaises(TypeError):
-            balancing_tree.BinarySearchTree(42)
+            balancing_tree.BalancingBinarySearchTree(42)
 
         with self.assertRaises(TypeError):
-            balancing_tree.BinarySearchTree(None)
+            balancing_tree.BalancingBinarySearchTree(None)
 
     def test_insert(self):
 
@@ -84,15 +99,18 @@ class test_BalancingBinarySearchTree(unittest.TestCase):
 
         self.setUp()
 
-        assert self.empty_balancing_tree.balance() == 0
-        assert self.worst_balancing_tree.balance() == -19
+        with self.assertRaises(AttributeError):
+            assert self.empty_balancing_tree.balance() == 0
+
+        assert self.worst_balancing_tree.balance() == -1
 
     def test_depth(self):
 
         self.setUp()
 
         assert self.empty_balancing_tree.depth() == 0
-        assert self.worst_balancing_tree.depth() == 20
+        # Down from 20 without AVL balancing!
+        assert self.worst_balancing_tree.depth() == 5
 
     def test_size(self):
 
@@ -162,7 +180,6 @@ class test_BalancingBinarySearchTree(unittest.TestCase):
         assert self.empty_balancing_tree.contains(0) is True
 
         self.empty_balancing_tree.delete(-1)
-
 
 
 unittest.main()
