@@ -107,7 +107,7 @@ if __name__ == '__main__':
         sorting_list = []
         for each_character in input_string:
             sorting_list.append(ord(each_character))
-        insertion_sort(sorting_list)
+        sorting_list = insertion_sort(sorting_list)
         return_list = []
         for each_number in sorting_list:
             return_list.append(chr(each_number))
