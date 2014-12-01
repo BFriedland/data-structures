@@ -114,18 +114,25 @@ Quicksort is similar to merge sort in that it's a "divide and conquer"
 Radix sort is an unusual sorting algorithm in that it gains efficiency
     when the number of digits (or "keys" for non-numeric comparisons) is
     constant and less than the number of elements to sort against each other.
-    This is because the algorithm breaks the problem into a number of steps
+
+    That is because the algorithm breaks the problem into a number of steps
     equal to the number of keys elements in the queryset have and sorts
     the elements by their value in that key alone. On the whole, this
     can save time, because a small number of keys and a large number of
     elements means the algorithm will scale according to the product of:
+
         (the constant-time operation of sorting each element's key's value)
-    and
-        (the linear-time operation of performing that algorithm once per key).
+        and
+        (the linear-time operation of performing that algorithm once per key)
+
     The net result is a big O rating of O(k*n), or the number of keys times
     the size of the dataset. This simplifies to O(n) when the number of
     keys is small and the size of the dataset is large, but can be worse
     than O(n^2) when the situation is inverted.
+
+    This algorithm will NOT work properly when handed numbers of differing
+    key length, and I'm not stopping Python from shaving off any prepended
+    zeroes hypothetical users might try to use to skirt this requirement.
 
 Dependencies include Python 2.7, only.
 
@@ -204,6 +211,8 @@ Resources used include:
         http://en.literateprograms.org/Quicksort_%28Python%29
 
     radix_sort:
+        http://en.wikipedia.org/wiki/Radix_sort
+        http://www.geekviewpoint.com/python/sorting/radixsort
         http://en.wikibooks.org/
             wiki/Algorithm_Implementation/Sorting/Radix_sort
 
