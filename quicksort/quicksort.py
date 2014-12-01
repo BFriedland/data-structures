@@ -103,7 +103,7 @@ if __name__ == '__main__':
 
     print("\nPerformance is O(nlogn) in the best and average cases,"
           "\nand O(n^2) in the worst case."
-          "\n\nHere's performance tests using timeit module.")
+          "\n\nHere's performance tests using the timeit module.")
 
     import timeit
     import random

@@ -104,6 +104,9 @@ Merge sort is a fairly simple sorting algorithm. It has very predictable
     (which are trivially sorted), and then it will zip them back up using
     first-element comparisons to sort the list as it merges.
 
+    Running merge_sort.py from the command line will demonstrate the
+    performance characteristics of this implementation of merge sort.
+
 Quicksort is similar to merge sort in that it's a "divide and conquer"
     algorithm, dividing a list into pieces and re-merging them in sorted
     order. Its main difference is that it sorts during the process of
