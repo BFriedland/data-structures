@@ -111,6 +111,9 @@ Quicksort is similar to merge sort in that it's a "divide and conquer"
     from the list each pass, then recursing on the pair of lesser- and
     greater-valued lists.
 
+    Running quicksort.py from the command line will demonstrate the
+    performance characteristics of this implementation of quicksort.
+
 Radix sort is an unusual sorting algorithm in that it gains efficiency
     when the number of digits (or "keys" for non-numeric comparisons) is
     constant and less than the number of elements to sort against each other.
