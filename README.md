@@ -96,7 +96,12 @@ hash_table.py will allow the construction of hash tables of user-defined
 
 Insertion sort is a simple sorting algorithm. It has somewhat poor performance,
     but it's very easy to implement. It will run in O(n) time in the best
-    case and O(n^2) time in the worst case.
+    case and O(n^2) time in the worst case. Compared to more advanced
+    sorting algorithms like merge sort, quicksort and radix sort, insertion
+    sort is very inefficient on large lists.
+
+    Running insertion_sort.py from the command line will demonstrate the
+    performance characteristics of this implementation of insertion sort.
 
 Merge sort is a fairly simple sorting algorithm. It has very predictable
     performance with a big O of n log(n) in every case.
