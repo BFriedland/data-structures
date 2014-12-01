@@ -18,3 +18,4 @@ script:
   - python insertion_sort/test_insertion_sort.py
   - python merge_sort/test_merge_sort.py
   - python quicksort/test_quicksort.py
+  - python radix_sort/test_radix_sort.py
