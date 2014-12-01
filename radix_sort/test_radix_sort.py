@@ -6,7 +6,7 @@ import radix_sort as r_s
 
 class test_RadixSort(unittest.TestCase):
 
-    def test_randomly():
+    def test_randomly(self):
 
         for each_pass in range(0, 1000):
 
@@ -15,7 +15,8 @@ class test_RadixSort(unittest.TestCase):
             for each_number in range(0, random.randint(3, 40)):
                 # E.g., 1000 to 9999 or 10 to 99 or 10000000 to 99999999
                 topend = (random_order_of_magnitude * 10) - 1
-                random_number = random.randint(random_order_of_magnitude, topend)
+                random_number = random.randint(random_order_of_magnitude,
+                                               topend)
                 random_list.append(random_number)
             # Verify the above worked...
             # preferably in the most humorously awkward yet direct way
@@ -31,19 +32,33 @@ class test_RadixSort(unittest.TestCase):
 
     def test_predictably(self):
 
-        dict_of_lists = {
+        dict_of_base_two_lists = {
             'list_zero': [0, 0, 0, 0, 0, 0, 0, 0],
             'list_one': [0, 0, 0, 0, 1, 1, 1, 1],
             'list_two': [0, 1, 0, 1, 0, 1, 0, 1],
             'list_three': [0, 1, 1, 0, 1, 1, 0, 0],
-            'list_four': [0000010, 0000100, 1000000, 0010000,
-                          0000001, 0100000, 0000000, 0001000],
-            'list_five': [0001, 0010, 0100, 1000,
-                          1100, 0011, 0101, 0110],
+            'list_four': [1101, 1110, 1010, 1011, 1100, 1111, 1000, 1001]
         }
 
-        for each_key in dict_of_lists:
-            each_list = dict_of_lists[each_key]
+        dict_of_base_ten_lists = {
+            'list_six': [10, 11, 12, 13, 26, 27, 28, 29],
+            'list_four': [56372, 57353, 98124, 12427, 35243, 25352, 53723],
+            'list_nine': [26, 27, 28, 29, 10, 11, 12, 13],
+            'list_five': [9, 8, 4, 3, 5, 6, 2, 1, 0, 7]
+        }
+
+        for each_key in dict_of_base_two_lists:
+            each_list = dict_of_base_two_lists[each_key]
+            sorted_list = r_s.radix_sort(each_list, base_of_each_digit=2)
+
+            assert len(sorted_list) == len(each_list)
+
+            for each_number in range(0, (len(each_list) - 1)):
+                assert (sorted_list[each_number]
+                        <= sorted_list[(each_number + 1)])
+
+        for each_key in dict_of_base_ten_lists:
+            each_list = dict_of_base_ten_lists[each_key]
             sorted_list = r_s.radix_sort(each_list)
 
             assert len(sorted_list) == len(each_list)
