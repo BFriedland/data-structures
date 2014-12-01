@@ -134,6 +134,9 @@ Radix sort is an unusual sorting algorithm in that it gains efficiency
     key length, and I'm not stopping Python from shaving off any prepended
     zeroes hypothetical users might try to use to skirt this requirement.
 
+    Running radix_sort.py from the command line will demonstrate the
+        performance characteristics of this implementation of radix sort.
+
 Dependencies include Python 2.7, only.
 
 Collaborators:

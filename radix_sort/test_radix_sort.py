@@ -10,7 +10,7 @@ class test_RadixSort(unittest.TestCase):
 
         for each_pass in range(0, 1000):
 
-            random_order_of_magnitude = (10 ** random.randint(1, 1))
+            random_order_of_magnitude = (10 ** random.randint(1, 10))
             random_list = []
             for each_number in range(0, random.randint(3, 40)):
                 # E.g., 1000 to 9999 or 10 to 99 or 10000000 to 99999999

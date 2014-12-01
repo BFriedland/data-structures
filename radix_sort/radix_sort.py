@@ -133,19 +133,55 @@ if __name__ == "__main__":
           "\nbecause radix_sort presumes the elements will be"
           "\nof an estimable length.")
 
+    print("\nHere, I realized 'code demonstrating the performance'"
+          "\nmight refer to testing with the timeit module..."
+          "\nSo, here's some timed performance data.")
+
+    import timeit
+    import random
+
+    giant_quantity_list = []
+    for each_pass in range(0, 100000):
+        giant_quantity_list.append(random.randint(1000, 9999))
+
+    call_string = 'radix_sort(giant_quantity_list, base_of_each_digit=10)'
+    setup_string = 'from __main__ import radix_sort, giant_quantity_list'
+
+    print("\nTime to sort a list of one hundred thousand"
+          "\nrandom numbers between 10e3 and (10e4) - 1:")
+    time_taken = timeit.Timer(call_string, setup_string)
+    print time_taken.timeit(number=1)
+
+    not_so_random_order_of_magnitude = (10 ** 30)
+
+    random_list = []
+    giant_quality_list = []
+    for each_pass in range(0, 100000):
+        # E.g., 1000 to 9999 or 10 to 99 or 10000000 to 99999999
+        topend = (not_so_random_order_of_magnitude * 10) - 1
+        random_number = random.randint(not_so_random_order_of_magnitude,
+                                       topend)
+        giant_quality_list.append(random_number)
+
+    call_string = 'radix_sort(giant_quality_list, base_of_each_digit=10)'
+    setup_string = 'from __main__ import radix_sort, giant_quality_list'
+
+    print("\nTime to sort a list of one hundred thousand"
+          "\nrandom numbers between 10e30 and (10e31) - 1:")
+    time_taken = timeit.Timer(call_string, setup_string)
+    print time_taken.timeit(number=1)
+
     proceed = raw_input("\nThe algorithm will now proceed to spammily test"
                         "\nrandomly generated lists. Press control-c to break."
                         "\n> ")
 
     print "\nBegin random testing.\n\n"
 
-    import random
-
     for each_pass in range(0, 1000):
 
-        random_order_of_magnitude = (10 ** random.randint(1, 1))
+        random_order_of_magnitude = (10 ** random.randint(1, 7))
         random_list = []
-        for each_number in range(0, random.randint(3, 40)):
+        for each_number in range(0, random.randint(3, 15)):
             # E.g., 1000 to 9999 or 10 to 99 or 10000000 to 99999999
             topend = (random_order_of_magnitude * 10) - 1
             random_number = random.randint(random_order_of_magnitude,
