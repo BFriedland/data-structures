@@ -1,5 +1,5 @@
 
-from Queue import Queue
+from Queue import Queue, PriorityQueue
 
 
 class Node:
@@ -9,6 +9,10 @@ class Node:
         self.value = value
         self.edges_for_this_node = []
 
+        # For the A* algorithm; optional in all other cases.
+        self.x_coordinate = None
+        self.y_coordinate = None
+
 
 class Edge:
 
@@ -16,6 +20,9 @@ class Edge:
 
         self.alpha_node = alpha_node
         self.beta_node = beta_node
+
+        # For Dijkstra's and A*:
+        self.weighting = None
 
 
 class ShortestPathsGraph:
@@ -335,7 +342,7 @@ class ShortestPathsGraph:
 
     def return_weighting(self, n1, n2):
         ''' Return the weighting between the Nodes with
-        values n1, n2;or, raise Exception if no such nodes. '''
+        values n1, n2; or, raise Exception if no such nodes. '''
 
         if (self.has_node(n1) is False) or (self.has_node(n2) is False):
             raise Exception("supplied parameters not in Graph")
@@ -355,6 +362,11 @@ class ShortestPathsGraph:
         return False
 
     def dijkstra_algorithm(self, start, end):
+        '''
+        Uses Dijkstra's algorithm to calculate the shortest path
+        between two nodes in the graph, supplied to this algorithm
+        as the starting and ending nodes' values.
+        '''
 
         # The trivial case.
         if start == end:
@@ -367,239 +379,303 @@ class ShortestPathsGraph:
             raise ValueError("Cannot path between {} and {}:"
                              " no such Node(s)".format(start, end))
 
-        # Dijkstra's algorithm is
-        # hard.
+        distances_from_the_start = {}
 
-        # ...
+        priority_queue_to_visit = PriorityQueue()
 
-        # All the Python examples take GvR's suggestion that dictionaries
-        # be used to reflect distances. In this example, all the Edges
-        # in the Graph will be converted into dictionaries of dictionaries
-        # to take advantage of dictionaries' efficiency.
-        # This mental translation made possible by "Hyperboreus" writing at:
-        # http://stackoverflow.com/
-        #               questions/22897209/dijkstras-algorithm-in-python
+        # I made the mistake of making these identical on one of my tries...
+        dict_of_which_nodes_were_visited_before_which = {}
+        already_pathed_nodes_list = []
 
-        dictionary_of_distances = {}
-        printable_dict_of_distances = {}
+        dict_of_which_nodes_were_visited_before_which[starting_node] = None
 
-        for each_node in self.node_list:
-            distances_for_the_edges_of_this_node = {}
-            printable_dict_for_edges_of_this_node = {}
-            for each_edge in each_node.edges_for_this_node:
+        # Put the starting node in the graph as the node with the lowest
+        # distance away from the starting node.
+        priority_queue_to_visit.put((0, starting_node))
 
-                if each_edge.alpha_node == each_node:
-                    other_node_of_this_edge = each_edge.beta_node
-                elif each_edge.beta_node == each_node:
-                    other_node_of_this_edge = each_edge.alpha_node
+        distances_from_the_start[starting_node] = 0
+
+        # When nothing has been added to the priority queue in a given pass
+        # and everything added before has been removed, there is nothing
+        # left to check.
+        while priority_queue_to_visit.qsize() > 0:
+
+            # Take the node out of the priority queue with
+            # the lowest distance away from the starting node.
+            current_node = priority_queue_to_visit.get()[1]
+
+            # Make sure you only do this for nodes that have been
+            # the current_node!
+            already_pathed_nodes_list.append(current_node)
+
+            for each_edge in current_node.edges_for_this_node:
+
+                # Pseudonymize
+                the_other_node = self.other_node(current_node, each_edge)
+
+                if the_other_node in already_pathed_nodes_list:
+                    # I'm so glad I learned about continue.
+                    continue
+
+                distance_for_traveling_to_this_other_node_from_current_node = distances_from_the_start[current_node] + each_edge.weighting
+
+                if the_other_node in distances_from_the_start:
+
+                    if distances_from_the_start[the_other_node] > distance_for_traveling_to_this_other_node_from_current_node:
+                        distances_from_the_start[the_other_node] = distance_for_traveling_to_this_other_node_from_current_node
+                        dict_of_which_nodes_were_visited_before_which[the_other_node] = current_node
+                        priority_queue_to_visit.put((distances_from_the_start[the_other_node], the_other_node))
                 else:
-                    raise Exception("Logic error -- "
-                                    "Neither of this node's edge's nodes"
-                                    "are this node!")
+                    distances_from_the_start[the_other_node] = distance_for_traveling_to_this_other_node_from_current_node
+                    dict_of_which_nodes_were_visited_before_which[the_other_node] = current_node
+                    priority_queue_to_visit.put((distances_from_the_start[the_other_node], the_other_node))
 
-                distances_for_the_edges_of_this_node[other_node_of_this_edge] \
-                    = each_edge.weighting
-                printable_dict_for_edges_of_this_node[
-                    other_node_of_this_edge.value] \
-                    = each_edge.weighting
+        if ending_node not in distances_from_the_start:
+            return None
 
-            dictionary_of_distances[each_node] \
-                = distances_for_the_edges_of_this_node
-            printable_dict_of_distances[each_node.value] \
-                = printable_dict_for_edges_of_this_node
-        print printable_dict_of_distances
+        # This next while loop creeps back through the dict of which nodes
+        # were visited before each other and builds the shortest path.
+        the_node_to_look_at_now = ending_node
+        ordered_path_list = []
 
+        while the_node_to_look_at_now is not None:
 
+            ordered_path_list.insert(0, the_node_to_look_at_now.value)
 
+            the_node_to_look_at_now = dict_of_which_nodes_were_visited_before_which[the_node_to_look_at_now]
 
+        return distances_from_the_start[ending_node], ordered_path_list
 
+    def a_star_algorithm(self, start, end, heuristic=None):
 
+        # The A* algorithm is very similar to Dijkstra's algorithm.
+        # This is because the A* algorithm is an improvement upon
+        # Dijkstra's algorithm, adding a step that consults a heuristic
+        # to determine which nodes to check next. This heuristic can,
+        # if properly chosen, increase the efficiency with which the
+        # shortest path may be found.
 
+        # Developed with reference to:
+        # http://en.wikipedia.org/wiki/A*_search_algorithm
+        # Some insight from:
+        # http://code.activestate.com
+        #      /recipes/577519-a-star-shortest-path-algorithm/
 
-        '''
+        if heuristic is None:
+            heuristic = self.default_heuristic
 
-        queue_to_visit = Queue()
-        queue_to_visit.put(self._return_node_with_this_value(start))
-        # The visited nodes list will serve as a record of our path.
-        previously_visited_nodes = []
-        nodes_already_added_to_queue = []
+        # The trivial case.
+        if start == end:
+            return [start]
 
-        # Base the while loop on the size of the queue:
-        while queue_to_visit.qsize() > 0:
+        try:
+            starting_node = self._return_node_with_this_value(start)
+            ending_node = self._return_node_with_this_value(end)
+        except:
+            raise ValueError("Cannot path between {} and {}:"
+                             " no such Node(s)".format(start, end))
 
-            current_node = queue_to_visit.get()
-            previously_visited_nodes.append(current_node)
+        distances_from_the_start = {}
+        guesses_for_distances_from_the_start = {}
 
-            for each_value in self.neighbors(current_node.value):
-                # This is inefficient but economizes on writing new functions.
-                # If desired, can be fixed by implementing an internal call
-                # for _neighbor_nodes() (that accepts a Node, perhaps).
-                each_neighbor = self._return_node_with_this_value(each_value)
+        priority_queue_to_visit = PriorityQueue()
 
-                # This wrecks the big O value, but I don't feel like i have
-                # enough time to improve it right now.
-                # Probably something involving dictionaries.
-                if each_neighbor not in previously_visited_nodes:
-                    if each_neighbor not in nodes_already_added_to_queue:
-                        queue_to_visit.put(each_neighbor)
-                        # Queue.Queue does not have a simply way to surveil its
-                        # own contents, so we build a list to keep track of
-                        # what we've added to it to prevent certain situations
-                        # involving multiple neighbors:
-                        nodes_already_added_to_queue.append(each_neighbor)
+        dict_of_which_nodes_were_visited_before_which = {}
+        already_pathed_nodes_list = []
 
-        previously_visited_node_values \
-            = [each_node.value for each_node in previously_visited_nodes]
+        dict_of_which_nodes_were_visited_before_which[starting_node] = None
 
-        return previously_visited_node_values
+        # Put the starting node in the graph as the node with the lowest
+        # distance away from the starting node.
+        priority_queue_to_visit.put((0, starting_node))
 
-        '''
+        distances_from_the_start[starting_node] = 0
+        guesses_for_distances_from_the_start[starting_node] = distances_from_the_start[starting_node] + heuristic(starting_node, ending_node)
 
+        # When nothing has been added to the priority queue in a given pass
+        # and everything added before has been removed, there is nothing
+        # left to check.
+        while priority_queue_to_visit.qsize() > 0:
 
+            # Take the node out of the priority queue with
+            # the lowest distance away from the starting node.
+            # For the A* algorithm, note that the priority queue
+            # has already been sorted according to guessed distances.
+            current_node = priority_queue_to_visit.get()[1]
+            already_pathed_nodes_list.append(current_node)
 
+            for each_edge in current_node.edges_for_this_node:
 
+                # Pseudonymize
+                the_other_node = self.other_node(current_node, each_edge)
 
-        # return shortest_path
+                if the_other_node in already_pathed_nodes_list:
+                    continue
 
+                distance_for_traveling_to_this_other_node_from_current_node = distances_from_the_start[current_node] + each_edge.weighting
 
+                if the_other_node in distances_from_the_start:
 
+                    if distances_from_the_start[the_other_node] > distance_for_traveling_to_this_other_node_from_current_node:
+                        distances_from_the_start[the_other_node] = distance_for_traveling_to_this_other_node_from_current_node
+                        dict_of_which_nodes_were_visited_before_which[the_other_node] = current_node
+                        # A* algorithm's differentiation step:
+                        guesses_for_distances_from_the_start[the_other_node] = distances_from_the_start[the_other_node] + heuristic(the_other_node, ending_node)
+                        # Note that the heuristically-informed guess is what
+                        # the priority queue is sorted by.
+                        priority_queue_to_visit.put((guesses_for_distances_from_the_start[the_other_node], the_other_node))
+                else:
+                    distances_from_the_start[the_other_node] = distance_for_traveling_to_this_other_node_from_current_node
+                    dict_of_which_nodes_were_visited_before_which[the_other_node] = current_node
+                    # A* algorithm's differentiation step:
+                    guesses_for_distances_from_the_start[the_other_node] = distances_from_the_start[the_other_node] + heuristic(the_other_node, ending_node)
+                    # Note that the heuristically-informed guess is what
+                    # the priority queue is sorted by.
+                    priority_queue_to_visit.put((guesses_for_distances_from_the_start[the_other_node], the_other_node))
 
+        if ending_node not in distances_from_the_start:
+            return None
 
+        # This next while loop creeps back through the dict of which nodes
+        # were visited before each other and builds the shortest path.
+        the_node_to_look_at_now = ending_node
+        ordered_path_list = []
 
+        while the_node_to_look_at_now is not None:
 
+            ordered_path_list.insert(0, the_node_to_look_at_now.value)
 
+            the_node_to_look_at_now = dict_of_which_nodes_were_visited_before_which[the_node_to_look_at_now]
 
+        # Important!
+        # The A* algorithm does NOT use guesses_for_distances_from_the_start
+        # when returning the path.
+        # The actual distance from the start determines what route to take;
+        # the heuristic modifier only changes how fast it finds it.
+        return distances_from_the_start[ending_node], ordered_path_list
 
+    def other_node(self, this_node, the_edge):
+        if the_edge.alpha_node == this_node:
+            return the_edge.beta_node
+        else:
+            return the_edge.alpha_node
 
-somewhat_complicated_graph = ShortestPathsGraph()
+    def default_heuristic(self, *args, **kwargs):
+        # In the A* algorithm, the heuristic is supposed to be a guess about
+        # the ideal direction to head in that informs the choice of which
+        # node to check next when finding paths through the graph.
+        # On a realistic 2d graph this would be the "Euclidean" distance,
+        # or sqrt(x^2 + y^2) away from the goal.
+        # For some more symbolically-connected graphs the "Manhattan" and
+        # "Chebyshev" heuristics can be used, which seem like they're
+        # intended for estimating based on moving in straight lines and
+        # making right angle turns (Manhattan) or moving node to node
+        # with predictable distances but without regard for the Euclidean
+        # distance modifier (Chebyshev).
 
-for each_integer in range(0, 10):
-    somewhat_complicated_graph.add_node(each_integer)
+        # References:
+        # http://code.activestate.com
+        #      /recipes/577519-a-star-shortest-path-algorithm/
+        # http://en.wikipedia.org/wiki/Euclidean_distance
+        # http://en.wikipedia.org/wiki/Taxicab_geometry
+        # http://en.wikipedia.org/wiki/Chebyshev_distance
 
-# range(0, 10) gives 0 though 9 and len(that) gives 10
-for each_index in range(1, len(somewhat_complicated_graph.node_list)):
-    somewhat_complicated_graph.add_weighted_edge((each_index - 1), each_index, (each_index * 2))
+        # Graphs with regular distances and absolute directions have
+        # meaningful heuristics, but my ShortestPathsGraph's bare-minimum
+        # default configuration cannot assume it will be made with anything
+        # like X and Y mapping or uniform distances between nodes, so
+        # instead of making it process meaningless numbers, I'll hand it zero.
+        # Other geometries may warrant different heuristics, and my
+        # implementation of the A* algorithm is ready to handle them
+        # using helper methods other than the default.
+        return 0
 
-# Tie the graph chain together at the ends, making a circle:
-somewhat_complicated_graph.add_weighted_edge(0, (len(somewhat_complicated_graph
-                                            .node_list) - 1), 20)
+    # Note that the following heuristics are meaningless without support
+    # for Cartesian coordinates, which is an end-user thing, far removed
+    # from the realm of pure logic my graph prefers to live in.
 
+    def euclidean_heuristic(self, starting_node, ending_node):
+        # For graphs intending to use Euclidean geometry to find paths.
+        x_difference = ending_node.x_coordinate - starting_node.x_coordinate
+        y_difference = ending_node.y_coordinate - starting_node.y_coordinate
+
+        import math
+        return math.sqrt((x_difference ** 2) + (y_difference ** 2))
+
+    def manhattan_heuristic(self, starting_node, ending_node):
+        # For graphs using Cartesian coordinates in which you may only
+        # travel in orthogonal lines between nodes.
+        x_difference = ending_node.x_coordinate - starting_node.x_coordinate
+        y_difference = ending_node.y_coordinate - starting_node.y_coordinate
+
+        return (abs(x_difference) + abs(y_difference))
+
+    def chebyshev_heuristic(self, starting_node, ending_node):
+        # For graphs using Cartesian coordinates where movement between
+        # nodes can happen diagonally, and that movement incurs the same
+        # cost as moving orthogonally (e.g. chess).
+        x_difference = ending_node.x_coordinate - starting_node.x_coordinate
+        y_difference = ending_node.y_coordinate - starting_node.y_coordinate
+
+        return max(abs(x_difference), abs(y_difference))
 
 
 if __name__ == '__main__':
-    # "In addition, write some demonstration code in
-    # an "if __name__ == '__main__':" block at the end of your file
-    # that shows how the two methods of traversal compare to each other
-    # when performed on the same graph.
-    # See if you can demonstrate the performance characteristics
-    # of the two methods over a variety of graph orders."
 
-    somewhat_complicated_graph = ShortestPathsGraph()
+    graph_zero = ShortestPathsGraph()
 
     for each_integer in range(0, 10):
-        somewhat_complicated_graph.add_node(each_integer)
+        graph_zero.add_node(each_integer)
 
     # range(0, 10) gives 0 though 9 and len(that) gives 10
-    for each_index in range(1, len(somewhat_complicated_graph.node_list)):
-        somewhat_complicated_graph.add_edge((each_index - 1), each_index)
+    # for each_index in range(1, len(graph_zero.node_list)):
+    #     # For values that scale from one part of the graph to another:
+    #     graph_zero.add_weighted_edge((each_index - 1), each_index, (each_index * 2))
+
+    for each_index in range(1, len(graph_zero.node_list)):
+        graph_zero.add_weighted_edge((each_index - 1),
+                                                     each_index, 1)
 
     # Tie the graph chain together at the ends, making a circle:
-    somewhat_complicated_graph.add_edge(0, (len(somewhat_complicated_graph
-                                                .node_list) - 1))
+    graph_zero.add_weighted_edge(0, (len(graph_zero
+                                                 .node_list) - 1), 20)
 
-    # Connect to circle:
-    somewhat_complicated_graph.add_edge("alpha", 4)
-    somewhat_complicated_graph.add_node("alpha")
+    print "\nfrom 0 to 5:"
+    print "Dijkstra's: " + str(graph_zero.dijkstra_algorithm(0, 5))
+    print "A*: " + str(graph_zero.a_star_algorithm(0, 5))
+    print "from 9 to 5:"
+    print "Dijkstra's: " + str(graph_zero.dijkstra_algorithm(9, 5))
+    print "A*: " + str(graph_zero.a_star_algorithm(9, 5))
 
-    # Side branch:
-    somewhat_complicated_graph.add_node("omega")
-    somewhat_complicated_graph.add_edge("omega", "alpha")
+    print "\nfrom alpha to delta:"
 
-    # Deep branch:
-    somewhat_complicated_graph.add_node("beta")
-    somewhat_complicated_graph.add_node("gamma")
-    somewhat_complicated_graph.add_node("delta")
-    somewhat_complicated_graph.add_node("eta")
-    somewhat_complicated_graph.add_node("theta")
+    graph_one = ShortestPathsGraph()
 
-    somewhat_complicated_graph.add_edge("alpha", "beta")
-    somewhat_complicated_graph.add_edge("beta", "gamma")
-    somewhat_complicated_graph.add_edge("gamma", "delta")
-    somewhat_complicated_graph.add_edge("delta", "eta")
+    graph_one.add_weighted_edge("alpha", "beta", 1)
+    # Testing decision making capability of this algorithm can be as easy
+    # as flipping this particular number from huge to small:
+    graph_one.add_weighted_edge("beta", "gamma", 199999999999)
+    graph_one.add_weighted_edge("gamma", "delta", 1)
+    graph_one.add_weighted_edge("hoopa", "gamma", 84)
 
-    # Extra side branch:
-    somewhat_complicated_graph.add_edge("gamma", "theta")
+    graph_one.add_weighted_edge("hoopa", "doopa", 646552)
+    graph_one.add_weighted_edge("doopa", "loopa", 534)
+    # Or simply commenting this connection:
+    graph_one.add_weighted_edge("alpha", "loopa", 1)
 
-    # Tie-backs:
-    somewhat_complicated_graph.add_edge("gamma", 8)
-    somewhat_complicated_graph.add_edge("theta", 8)
+    print "Dijkstra's: " + str(graph_one.dijkstra_algorithm("alpha", "delta"))
+    print "A*: " + str(graph_one.a_star_algorithm("alpha", "delta"))
 
-    # Minibranch:
-    somewhat_complicated_graph.add_node("omicron")
-    somewhat_complicated_graph.add_edge("omicron", 6)
+    print "with beta-gamma bypass:"
+    # The algorithms work properly even with multiple edges per vertex pair:
+    graph_one.add_weighted_edge("beta", "gamma", 1)
 
-    # Separated from the graph:
-    somewhat_complicated_graph.add_node("upsilon")
-    somewhat_complicated_graph.add_node("xi")
-    somewhat_complicated_graph.add_edge("xi", "upsilon")
+    print "Dijkstra's: " + str(graph_one.dijkstra_algorithm("alpha", "delta"))
+    print "A*: " + str(graph_one.a_star_algorithm("alpha", "delta"))
 
-    print("\nDepth-first traversal:\n    ")
-    print(somewhat_complicated_graph.depth_first_traversal("alpha"))
+    print "\nalpha to separated node:"
+    # Separated:
+    graph_one.add_node("omicron")
 
-    print("\nBreadth-first traversal:\n    ")
-    print(somewhat_complicated_graph.breadth_first_traversal("alpha"))
-
-    check_if_random_is_okay = raw_input(
-        "\n\nThe following code will generate numerous random graphs with"
-        " unpredictable\ntopologies and print the results of calling both"
-        " path functions to the console."
-        "\n\nThis can be fairly spammy. If this is not desired, interrupt"
-        " the program with\ncontrol-c."
-        " Otherwise, press enter to continue . . .\n> ")
-
-    # Mad science
-    import random
-
-    print("\n\n. . . Beginning random graph generation . . .\n")
-
-    # Performance differences can be demonstrated by reducing the top
-    # end of each_pass's range to 1, increasing the top and bottom of
-    # random_node_count's range to >10000, and running the program
-    # a few times to test different Graph types.
-    for each_pass in range(0, 100):
-
-        random_graph = ShortestPathsGraph()
-        random_node_count = random.randint(10, 100)
-        # -1 to allow for single-node graphs
-        random_edge_count = random.randint(((random_node_count // 2) - 1),
-                                           (random_node_count - 1))
-
-        for each_node_count in range(0, random_node_count):
-            random_graph.add_node(each_node_count)
-
-        for each_edge_count in range(0, random_edge_count):
-            # This graph is by no means guaranteed to be fully connected.
-            two_random_nodes = random.sample(random_graph.node_list, 2)
-            # Note to self: add_edge() is supposed to take values, not Nodes.
-            random_graph.add_edge(two_random_nodes[0].value,
-                                  two_random_nodes[1].value)
-
-        random_edge = random.sample(random_graph.edge_list, 1)[0]
-        random_connected_node = random_edge.alpha_node
-
-        print "\n. Random Graph #{} .".format(each_pass)
-
-        print "Depth-first traversal:\n    "
-        print random_graph.depth_first_traversal(random_connected_node.value)
-
-        print "\nBreadth-first traversal:\n    "
-        print random_graph.breadth_first_traversal(random_connected_node.value)
-
-    somewhat_complicated_graph = ShortestPathsGraph()
-
-    for each_integer in range(0, 10):
-        somewhat_complicated_graph.add_node(each_integer)
-
-    # range(0, 10) gives 0 though 9 and len(that) gives 10
-    for each_index in range(1, len(somewhat_complicated_graph.node_list)):
-        somewhat_complicated_graph.add_edge((each_index - 1), each_index)
+    print "Dijkstra's: " + str(graph_one.dijkstra_algorithm("alpha", "omicron"))
+    print "A*: " + str(graph_one.a_star_algorithm("alpha", "omicron"))

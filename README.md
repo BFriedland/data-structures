@@ -27,6 +27,47 @@ Weighted graphs are just like traversable graphs, but they have a weighting,
     which is largely useless unless some extra functionality is added.
     Necessary for implementing Djikstra's shortest-path algorithm.
 
+Shortest paths graphs are weighted graphs that utilize their nodes'
+    weighting attribute to calculate the shortest path between the nodes
+    of two given values.
+
+    There are two shortest path algorithms available to the ShortestPathsGraph:
+
+        dijkstra_algorithm: Finds the shortest path in the graph if it exists
+            and returns it in a list where the first element is the total
+            cost of following the path and the second element is a list of
+            the values of each node required to follow the shortest path,
+            ordered from the start to the end.
+            Returns None if no path is found.
+
+        a_star_algorithm: Finds the shortest path in the graph if it exists
+            and returns it in a list where the first element is the total
+            cost of following the path and the second element is a list of
+            the values of each node required to follow the shortest path,
+            ordered from the start to the end.
+            Uses a heuristic, defaulting to None, which can increase the
+            efficiency of this process when the heuristic is chosen based
+            on reasonable assumptions about the graph's geometry.
+            Returns None if no path is found.
+
+            Notes about heuristics: The Euclidean, Manhattan and Chebyshev
+                heuristics may only be used if nodes are provided by the
+                user with x_coordinate and y_coordinate values; otherwise,
+                the default heuristic may be used, making this algorithm's
+                performance roughly identical to Dijkstra's algorithm.
+
+                The provided heuristics only make sense on graphs with
+                certain properties; the Euclidean heuristic, for example,
+                is best used on graphs where traversal between nodes
+                resembles unrestricted movement in the real world, whereas
+                the Manhattan heuristic is best for graphs utilizing
+                'taxicab geometry', and the Chebyshev heuristic is better
+                for graphs where traversal costs resemble those of
+                the king in chess.
+
+                http://en.wikipedia.org/wiki/Taxicab_geometry
+                http://en.wikipedia.org/wiki/Chebyshev_distance
+
 hash_table.py will allow the construction of hash tables of user-defined
     sizes that allow only strings for keys.
 
@@ -77,7 +118,7 @@ Unit tests were usefully informed by:
 
     https://github.com/charlieRode/data-structures/blob/bst/test_bst.py
 
-Resources used include:https://github.com/BFriedland/data-structures/pull/8
+Resources used include:
 
     linked_list:
         http://en.literateprograms.org/Singly_linked_list_%28Python%29
@@ -113,6 +154,13 @@ Resources used include:https://github.com/BFriedland/data-structures/pull/8
 
     weighted_graph:
         Own memory
+
+    shortest_paths:
+        http://www.eoinbailey.com/content/dijkstras-algorithm-illustrated-explanation
+        http://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
+        http://code.activestate.com/
+            recipes/577519-a-star-shortest-path-algorithm/
+        http://en.wikipedia.org/wiki/A*_search_algorithm
 
     insertion_sort:
         http://en.wikipedia.org/wiki/Insertion_sort
