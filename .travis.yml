@@ -19,3 +19,4 @@ script:
   - python merge_sort/test_merge_sort.py
   - python quicksort/test_quicksort.py
   - python radix_sort/test_radix_sort.py
+  - python balancing_tree/test_balancing_tree.py
