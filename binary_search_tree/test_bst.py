@@ -1,9 +1,10 @@
 import unittest
-import bst
 import random
 
+import balancing_tree
 
-class test_BinarySearchTree(unittest.TestCase):
+
+class test_BalancingBinarySearchTree(unittest.TestCase):
 
     def setUp(self):
 
