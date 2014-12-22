@@ -101,10 +101,69 @@ if __name__ == '__main__':
         sorted_list = quicksort(dict_of_lists[each_list])
         print("Sorted:\n    " + str(sorted_list))
 
-    print("\nPerformance is O(nlogn) in the best and average cases,\n"
-          "and O(n^2) in the worst case.")
+    print("\nPerformance is O(nlogn) in the best and average cases,"
+          "\nand O(n^2) in the worst case."
+          "\n\nHere's performance tests using the timeit module.")
 
-    raw_input("\n    Press enter to begin the BONUS ROUND!")
+    import timeit
+    import random
+
+    giant_quantity_list = []
+    for each_pass in range(0, 100000):
+        giant_quantity_list.append(random.randint(1000, 9999))
+
+    call_string = 'quicksort(giant_quantity_list)'
+    setup_string = 'from __main__ import quicksort, giant_quantity_list'
+
+    print("\nTime to sort a list of one hundred thousand"
+          "\nrandom numbers between 10e3 and (10e4) - 1:")
+    time_taken = timeit.Timer(call_string, setup_string)
+    print time_taken.timeit(number=1)
+
+    not_so_random_order_of_magnitude = (10 ** 30)
+
+    random_list = []
+    giant_quality_list = []
+    for each_pass in range(0, 100000):
+        # E.g., 1000 to 9999 or 10 to 99 or 10000000 to 99999999
+        topend = (not_so_random_order_of_magnitude * 10) - 1
+        random_number = random.randint(not_so_random_order_of_magnitude,
+                                       topend)
+        giant_quality_list.append(random_number)
+
+    call_string = 'quicksort(giant_quality_list)'
+    setup_string = 'from __main__ import quicksort, giant_quality_list'
+
+    print("\nTime to sort a list of one hundred thousand"
+          "\nrandom numbers between 10e30 and (10e31) - 1:")
+    time_taken = timeit.Timer(call_string, setup_string)
+    print time_taken.timeit(number=1)
+
+    very_predictable_list = []
+    very_predictable_list_with_middle_at_start = []
+    for each_pass in range(0, 900):
+        very_predictable_list.append(each_pass)
+        very_predictable_list_with_middle_at_start.append(each_pass)
+
+    very_predictable_list_with_middle_at_start.insert(0, 450)
+
+    print("\nWorst case is not dramatically demonstrable because:"
+          "\n'RuntimeError: maximum recursion depth exceeded in cmp'"
+          "\nSo, here's the worst case with a 900-point list:")
+
+    call_string = 'quicksort(very_predictable_list)'
+    setup_string = 'from __main__ import quicksort, very_predictable_list'
+    time_taken = timeit.Timer(call_string, setup_string)
+    print time_taken.timeit(number=1)
+
+    print("\nSame list, midpoint put under pivot spot:")
+
+    call_string = 'quicksort(very_predictable_list_with_middle_at_start)'
+    setup_string = 'from __main__ import quicksort, very_predictable_list_with_middle_at_start'
+    time_taken = timeit.Timer(call_string, setup_string)
+    print time_taken.timeit(number=1)
+
+    raw_input("\n    Press enter to demonstrate sorting strings.")
 
     strings_dict = {
         'list_six': "Not the most useful application for sorting.",

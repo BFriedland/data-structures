@@ -10,13 +10,19 @@ class Node:
         # Needed for deletion to make updating depth easier
         self.depth_of_node = depth
 
+        # For AVL tree-balancing, a node must
+        # keep track of its own balance offset.
+        # Note that the root node always starts
+        # with a balance_offset of zero.
+        self.balance_offset = 0
+
     def __str__(self):
         # inspired by:
         # https://github.com/caseymacphee/Data-structures/blob/master/bst.py
         return str(self.value)
 
 
-class BinarySearchTree:
+class BalancingBinarySearchTree:
 
     # With much assistance from:
     # https://github.com/caseymacphee/Data-structures/blob/master/bst.py
@@ -28,7 +34,97 @@ class BinarySearchTree:
         self.root_node = None
         self.size_counter = 0
         self.depth_counter = 0
+
+        # This is not related to the AVL tree's balance measures, but
+        # it can serve as a mildly interesting way to keep track of the
+        # performance balance of the tree balancing function by comparison.
         self.balance_counter = 0
+
+    def correct_balance(self, this_node):
+
+        # Reference:
+        # http://interactivepython.org/
+        #     courselib/static/pythonds/Trees/balanced.html
+
+        if ((this_node.balance_offset > 1)
+           or (this_node.balance_offset < -1)):
+
+            self.avl_balance(this_node)
+
+            # It shouldn't need to continue checking after this point, sp:
+            return
+
+        if this_node.parent is not None:
+
+            # Check if this_node is the left branch of the parent node:
+            if this_node.parent.left == this_node:
+
+                # Balance offsets on each node match the direction of the
+                # tree's sign -- left is positive offset, right is negative.
+                this_node.parent.balance_offset += 1
+
+            # Now check if this_node is the right branch of the parent node:
+            elif this_node.parent.right == this_node:
+                this_node.parent.balance_offset -= 1
+
+            # If the parent node's balance is not zero, check them too.
+            # ((Note that this whole procedure only works properly if
+            # correct_balance() is called after every change to the tree;
+            # when this cannot be guaranteed, there may be situations
+            # where the tree doesn't realize the balance is askew.))
+            if this_node.parent.balance_offset != 0:
+
+                # Note: This is a tail recursion point. It is NOT intended
+                # to be the same as calling self.avl_balance().
+                self.correct_balance(this_node.parent)
+
+    def avl_balance(self, this_node):
+
+        # If this_node's balance_offset is zero, no rebalancing is needed.
+        if this_node.balance_offset == 0:
+            return
+
+        # If the node's balance offset is negative,
+        # the branches below it must be right-heavy.
+        if this_node.balance_offset < 0:
+
+            # Being right-heavy doesn't mean that the right branch is
+            # correctly balanced, itself. The right branch could still
+            # be locally imbalanced to the left. In this case a separate
+            # pre-balancing step on the right branch should be performed
+            # before self.rotate_left(this_node) is called.
+            if this_node.right.balance_offset > 0:
+                self.rotate_right(this_node.right)
+                # Once the subtree's rotation is corrected, this_node may
+                # safely be rotated to the left:
+                self.rotate_left(this_node)
+            # If there is no imbalance in the subtree opposite to the
+            # imbalance of this_node, this_node may safely be rotated left:
+            else:
+                self.rotate_left(this_node)
+
+        # Handling cases where the tree is left-heavy:
+        elif this_node.balance_offset > 0:
+
+            # As above, but with inverted balance checking.
+            # If this_node's left branch has a rightwards imbalance
+            # (even though this_node is itself imbalanced leftwards)...
+            if this_node.left.balance_offset < 0:
+
+                # ... then pre-balance the left branch leftwards to correct
+                # that rightwards imbalance...
+                self.rotate_left(this_node.left)
+                # ... and then rotate this_node to resolve its own imbalance:
+                self.rotate_right(this_node)
+
+            # If this_node's left branch has no rightwards imbalance of
+            # its own, this_node may safely be rotated rightwards
+            # (to correct its own leftwards offset).
+            else:
+                self.rotate_right(this_node)
+
+
+
 
     def insert(self, val):
         ''' Insert val into the binary search tree as a node, maintaining
@@ -97,6 +193,11 @@ class BinarySearchTree:
                         # placing a node which is on the left of *something*.
                         if which_side_are_we_placing_it_on == "Left":
                             self.balance_counter += 1
+
+                        # If a node was added here, check for
+                        # and correct potential tree imbalances:
+                        self.correct_balance(current_node.left)
+
                     else:
 
                         # passes_so_far updates at the top of the loop.
@@ -126,12 +227,15 @@ class BinarySearchTree:
                         current_node.right.parent = current_node
                         self.size_counter += 1
 
-
                         # This information is related to the first branchpoint;
                         # it cannot be determined from the mere fact we are
                         # placing a node which is on the right of *something*.
                         if which_side_are_we_placing_it_on == "Right":
                             self.balance_counter -= 1
+
+                        # If a node was added here, check for
+                        # and correct potential tree imbalances:
+                        self.correct_balance(current_node.right)
 
                     else:
 
@@ -433,17 +537,17 @@ class BinarySearchTree:
 
 if __name__ == "__main__":
 
-    bst = BinarySearchTree()
+    balancing_tree = BalancingBinarySearchTree()
     print("Worst case scenario to find 9 is as long as a linked list, or O(n):")
     for each in range(1, 10):
-        bst.insert(each)
-    bst.in_order_print(bst.root_node)
-    print("Size: %r\nDepth: %r\nBalance:%r\n" % (bst.size(), bst.depth(), bst.balance()))
+        balancing_tree.insert(each)
+    balancing_tree.in_order_print(balancing_tree.root_node)
+    print("Size: %r\nDepth: %r\nBalance:%r\n" % (balancing_tree.size(), balancing_tree.depth(), balancing_tree.balance()))
 
-    bst = BinarySearchTree()
+    balancing_tree = BalancingBinarySearchTree()
     print("Best case scenario to find 9 is constant time, when it's placed at the top:")
-    bst.insert(9)
-    bst.in_order_print(bst.root_node)
-    print("Size: %r\nDepth: %r\nBalance:%r\n" % (bst.size(), bst.depth(), bst.balance()))
+    balancing_tree.insert(9)
+    balancing_tree.in_order_print(balancing_tree.root_node)
+    print("Size: %r\nDepth: %r\nBalance:%r\n" % (balancing_tree.size(), balancing_tree.depth(), balancing_tree.balance()))
 
     print("The average case is O(log n).\n")

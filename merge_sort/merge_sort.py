@@ -136,9 +136,68 @@ if __name__ == '__main__':
         print("Sorted:\n    " + str(sorted_list))
 
     print("\nPerformance is O(nlogn) in the best, worst, and typical cases."
-          "\nIt's very predictable that way.")
+          "\nIt's very predictable that way."
+          "\n\nHere's performance tests using the timeit module.")
 
-    raw_input("\n    Press enter to begin the BONUS ROUND!")
+    import timeit
+    import random
+
+    giant_quantity_list = []
+    for each_pass in range(0, 10000):
+        giant_quantity_list.append(random.randint(1000, 9999))
+
+    call_string = 'merge_sort(giant_quantity_list)'
+    setup_string = 'from __main__ import merge_sort, giant_quantity_list'
+
+    print("\nTime to sort a list of ten thousand"
+          "\nrandom numbers between 10e3 and (10e4) - 1:")
+    time_taken = timeit.Timer(call_string, setup_string)
+    print time_taken.timeit(number=1)
+
+    not_so_random_order_of_magnitude = (10 ** 30)
+
+    random_list = []
+    giant_quality_list = []
+    for each_pass in range(0, 10000):
+        # E.g., 1000 to 9999 or 10 to 99 or 10000000 to 99999999
+        topend = (not_so_random_order_of_magnitude * 10) - 1
+        random_number = random.randint(not_so_random_order_of_magnitude,
+                                       topend)
+        giant_quality_list.append(random_number)
+
+    call_string = 'merge_sort(giant_quality_list)'
+    setup_string = 'from __main__ import merge_sort, giant_quality_list'
+
+    print("\nTime to sort a list of ten thousand"
+          "\nrandom numbers between 10e30 and (10e31) - 1:")
+    time_taken = timeit.Timer(call_string, setup_string)
+    print time_taken.timeit(number=1)
+
+    very_predictable_list = []
+    very_predictable_list_with_middle_at_start = []
+    for each_pass in range(0, 900):
+        very_predictable_list.append(each_pass)
+        very_predictable_list_with_middle_at_start.append(each_pass)
+
+    very_predictable_list_with_middle_at_start.insert(0, 450)
+
+    print("\nBecause merge_sort is very predictable, it has no worst case."
+          "\nHere's Quicksort's worst case with a 900-point list:")
+
+    call_string = 'merge_sort(very_predictable_list)'
+    setup_string = 'from __main__ import merge_sort, very_predictable_list'
+    time_taken = timeit.Timer(call_string, setup_string)
+    print time_taken.timeit(number=1)
+
+    print("\nSame list, midpoint put under what"
+          "\nwould be Quicksort's pivot spot:")
+
+    call_string = 'merge_sort(very_predictable_list_with_middle_at_start)'
+    setup_string = 'from __main__ import merge_sort, very_predictable_list_with_middle_at_start'
+    time_taken = timeit.Timer(call_string, setup_string)
+    print time_taken.timeit(number=1)
+
+    raw_input("\n    Press enter to begin testing sorting on strings.")
 
     strings_dict = {
         'list_six': "Not the most useful application for sorting.",
