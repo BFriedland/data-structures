@@ -91,7 +91,6 @@ class BinarySearchTree:
                         current_node.left.parent = current_node
                         self.size_counter += 1
 
-
                         # This information is related to the first branchpoint;
                         # it cannot be determined from the mere fact we are
                         # placing a node which is on the left of *something*.
@@ -223,13 +222,6 @@ class BinarySearchTree:
     def balance(self):
         return self.balance_counter
 
-
-
-
-
-
-
-
     def delete(self, val, current_node=None):
 
         if isinstance(current_node, Node):
@@ -304,9 +296,6 @@ class BinarySearchTree:
 
                 # Rebalancing the whole tree has nothing to do with finding
                 # the balance of the subtree, and vice versa.
-
-
-
 
                 # This function returns the length of a given node's subtree.
                 # It is to be called on the_node_to_delete.left AND
@@ -418,8 +407,6 @@ class BinarySearchTree:
         else:
             return max(self.depth_finder_list)
 
-
-    ## DEBUG
     # Reference:
     # http://stackoverflow.com/questions/5444394/
     #    implementing-binary-search-tree-in-python
@@ -430,8 +417,6 @@ class BinarySearchTree:
         self.in_order_print(root_of_current_comparison.left)
         print(root_of_current_comparison.value)
         self.in_order_print(root_of_current_comparison.right)
-
-    ## / DEBUG
 
 
 if __name__ == "__main__":

@@ -101,6 +101,7 @@ class test_BinarySearchTree(unittest.TestCase):
         assert self.empty_bst.size() == 0
         assert self.worst_bst.size() == 20
 
+
     def test_contains(self):
 
         self.setUp()
@@ -161,6 +162,7 @@ class test_BinarySearchTree(unittest.TestCase):
         assert self.empty_bst.contains(0) is True
 
         self.empty_bst.delete(-1)
+
 
 
 unittest.main()
